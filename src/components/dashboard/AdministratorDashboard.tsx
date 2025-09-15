@@ -4,6 +4,11 @@ import AppLayout from '@/components/layout/AppLayout';
 import AdminNavigation from '@/components/admin/AdminNavigation';
 import AdminDashboardOverview from '@/components/admin/AdminDashboardOverview';
 import UserManagement from '@/components/admin/UserManagement';
+import ChapterManagement from '@/components/admin/ChapterManagement';
+import TradeManagement from '@/components/admin/TradeManagement';
+import ReportsManagement from '@/components/admin/ReportsManagement';
+import AuditTrail from '@/components/admin/AuditTrail';
+import NotificationManagement from '@/components/admin/NotificationManagement';
 
 const AdministratorDashboard = () => {
   const { profile } = useAuth();
@@ -16,15 +21,15 @@ const AdministratorDashboard = () => {
       case 'users':
         return <UserManagement />;
       case 'chapters':
-        return <div className="p-8 text-center text-muted-foreground">Chapter Management - Coming Soon</div>;
+        return <ChapterManagement />;
       case 'trades':
-        return <div className="p-8 text-center text-muted-foreground">Trade & Payment Management - Coming Soon</div>;
+        return <TradeManagement />;
       case 'reports':
-        return <div className="p-8 text-center text-muted-foreground">Reports & Invoices - Coming Soon</div>;
+        return <ReportsManagement />;
       case 'audit':
-        return <div className="p-8 text-center text-muted-foreground">Audit Trail - Coming Soon</div>;
+        return <AuditTrail />;
       case 'notifications':
-        return <div className="p-8 text-center text-muted-foreground">Notifications - Coming Soon</div>;
+        return <NotificationManagement />;
       default:
         return <AdminDashboardOverview onNavigate={setActiveTab} />;
     }
