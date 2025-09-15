@@ -251,8 +251,13 @@ export const adminService = {
 
       if (error) throw error;
 
+      const normalized = (data || []).map((u: any) => ({
+        ...u,
+        chapter: Array.isArray(u.chapter) ? (u.chapter[0] || null) : u.chapter,
+      }));
+
       return {
-        users: data || [],
+        users: normalized as UserWithChapter[],
         totalCount: count || 0
       };
     } catch (error) {

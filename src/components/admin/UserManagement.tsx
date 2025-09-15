@@ -29,15 +29,15 @@ import {
 } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { 
-  Users, 
+  Building, 
   Plus, 
   Search, 
   Edit, 
-  UserCheck, 
-  UserX,
-  Mail,
-  Phone,
-  Building
+  Trash2,
+  Users,
+  DollarSign,
+  TrendingUp,
+  UserCheck
 } from 'lucide-react';
 import { adminService, type UserWithChapter, type ChapterWithStats } from '@/lib/services/adminService';
 import { toast } from 'sonner';
