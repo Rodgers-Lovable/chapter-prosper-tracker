@@ -55,7 +55,7 @@ export const reportService = {
     trades.forEach(trade => {
       tradesData.push([
         new Date(trade.created_at || '').toLocaleDateString(),
-        trade.amount,
+        trade.amount.toString(),
         trade.status,
         trade.description || '',
         trade.source_member?.full_name || 'N/A',
