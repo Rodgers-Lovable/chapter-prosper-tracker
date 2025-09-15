@@ -1,73 +1,94 @@
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { 
+import React, { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog';
-import { 
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { 
-  Building, 
-  Plus, 
-  Search, 
-  Edit, 
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Building,
+  Plus,
+  Search,
+  Edit,
   Trash2,
   Users,
   DollarSign,
   TrendingUp,
-  UserCheck
-} from 'lucide-react';
-import { adminService, type ChapterWithStats, type UserWithChapter } from '@/lib/services/adminService';
-import { toast } from 'sonner';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { supabase } from '@/integrations/supabase/client';
-import { PostgrestError } from '@supabase/supabase-js';
+  UserCheck,
+} from "lucide-react";
+import {
+  adminService,
+  type ChapterWithStats,
+  type UserWithChapter,
+} from "@/lib/services/adminService";
+import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
+import { PostgrestError } from "@supabase/supabase-js";
 
 const chapterFormSchema = z.object({
-  name: z.string().min(2, 'Chapter name must be at least 2 characters'),
-  leader_id: z.string().optional()
+  name: z.string().min(2, "Chapter name must be at least 2 characters"),
+  leader_id: z.string().optional(),
 });
 
 type ChapterFormData = z.infer<typeof chapterFormSchema>;
 
 const ChapterManagement: React.FC = () => {
   const [chapters, setChapters] = useState<ChapterWithStats[]>([]);
-  const [availableLeaders, setAvailableLeaders] = useState<UserWithChapter[]>([]);
+  const [availableLeaders, setAvailableLeaders] = useState<UserWithChapter[]>(
+    []
+  );
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [editingChapter, setEditingChapter] = useState<ChapterWithStats | null>(null);
+  const [editingChapter, setEditingChapter] = useState<ChapterWithStats | null>(
+    null
+  );
 
   const form = useForm<ChapterFormData>({
     resolver: zodResolver(chapterFormSchema),
     defaultValues: {
-      name: '',
-      leader_id: ''
-    }
+      name: "",
+      leader_id: "",
+    },
   });
 
   useEffect(() => {
@@ -81,8 +102,8 @@ const ChapterManagement: React.FC = () => {
       const chaptersData = await adminService.getTopChapters(50); // Get all chapters
       setChapters(chaptersData);
     } catch (error) {
-      console.error('Error loading chapters:', error);
-      toast.error('Failed to load chapters');
+      console.error("Error loading chapters:", error);
+      toast.error("Failed to load chapters");
     } finally {
       setLoading(false);
     }
@@ -91,111 +112,115 @@ const ChapterManagement: React.FC = () => {
   const loadAvailableLeaders = async () => {
     try {
       // Get users who can be chapter leaders (chapter_leader or administrator roles)
-      const { users } = await adminService.getUsers(1, 100, { 
-        role: 'chapter_leader' 
+      const { users } = await adminService.getUsers(1, 100, {
+        role: "chapter_leader",
       });
       setAvailableLeaders(users);
     } catch (error) {
-      console.error('Error loading available leaders:', error);
+      console.error("Error loading available leaders:", error);
     }
   };
 
   const handleCreateChapter = async (data: ChapterFormData) => {
     try {
-      const { error } = await supabase
-        .from('chapters')
-        .insert({
-          name: data.name,
-          leader_id: data.leader_id || null
-        });
+      const { error } = await supabase.from("chapters").insert({
+        name: data.name,
+        leader_id: data.leader_id && data.leader_id !== "none" ? data.leader_id : null,
+      });
 
       if (error) throw error;
 
-      await adminService.logAdminAction('chapter_created', {
+      await adminService.logAdminAction("chapter_created", {
         chapter_name: data.name,
-        leader_id: data.leader_id
+        leader_id: data.leader_id,
       });
 
-      toast.success('Chapter created successfully');
+      toast.success("Chapter created successfully");
       setIsCreateDialogOpen(false);
       form.reset();
       loadChapters();
     } catch (error: any) {
-      console.error('Error creating chapter:', error);
-      toast.error(error.message || 'Failed to create chapter');
+      console.error("Error creating chapter:", error);
+      toast.error(error.message || "Failed to create chapter");
     }
   };
 
   const handleUpdateChapter = async (data: ChapterFormData) => {
     if (!editingChapter) return;
-    
+
     try {
       const { error } = await supabase
-        .from('chapters')
+        .from("chapters")
         .update({
           name: data.name,
-          leader_id: data.leader_id || null
+          leader_id: data.leader_id && data.leader_id !== "none" ? data.leader_id : null,
         })
-        .eq('id', editingChapter.id);
+        .eq("id", editingChapter.id);
 
       if (error) throw error;
 
-      await adminService.logAdminAction('chapter_updated', {
+      await adminService.logAdminAction("chapter_updated", {
         chapter_id: editingChapter.id,
-        updated_data: data
+        updated_data: data,
       });
 
-      toast.success('Chapter updated successfully');
+      toast.success("Chapter updated successfully");
       setEditingChapter(null);
       form.reset();
       loadChapters();
     } catch (error: any) {
-      console.error('Error updating chapter:', error);
-      toast.error(error.message || 'Failed to update chapter');
+      console.error("Error updating chapter:", error);
+      toast.error(error.message || "Failed to update chapter");
     }
   };
 
   const handleDeleteChapter = async (chapter: ChapterWithStats) => {
     if (chapter.member_count > 0) {
-      toast.error('Cannot delete chapter with active members. Please reassign members first.');
+      toast.error(
+        "Cannot delete chapter with active members. Please reassign members first."
+      );
       return;
     }
 
-    if (!confirm(`Are you sure you want to delete ${chapter.name}? This action cannot be undone.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to delete ${chapter.name}? This action cannot be undone.`
+      )
+    ) {
       return;
     }
 
     try {
       const { error } = await supabase
-        .from('chapters')
+        .from("chapters")
         .delete()
-        .eq('id', chapter.id);
+        .eq("id", chapter.id);
 
       if (error) throw error;
 
-      await adminService.logAdminAction('chapter_deleted', {
+      await adminService.logAdminAction("chapter_deleted", {
         chapter_id: chapter.id,
-        chapter_name: chapter.name
+        chapter_name: chapter.name,
       });
 
-      toast.success('Chapter deleted successfully');
+      toast.success("Chapter deleted successfully");
       loadChapters();
     } catch (error: any) {
-      console.error('Error deleting chapter:', error);
-      toast.error(error.message || 'Failed to delete chapter');
+      console.error("Error deleting chapter:", error);
+      toast.error(error.message || "Failed to delete chapter");
     }
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
-  const filteredChapters = chapters.filter(chapter =>
+  const filteredChapters = chapters.filter((chapter) =>
     chapter.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -227,7 +252,10 @@ const ChapterManagement: React.FC = () => {
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleCreateChapter)} className="space-y-4">
+              <form
+                onSubmit={form.handleSubmit(handleCreateChapter)}
+                className="space-y-4"
+              >
                 <FormField
                   control={form.control}
                   name="name"
@@ -247,7 +275,10 @@ const ChapterManagement: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Chapter Leader</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a leader (optional)" />
@@ -267,7 +298,11 @@ const ChapterManagement: React.FC = () => {
                   )}
                 />
                 <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsCreateDialogOpen(false)}
+                  >
                     Cancel
                   </Button>
                   <Button type="submit">Create Chapter</Button>
@@ -297,7 +332,9 @@ const ChapterManagement: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Chapters</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Chapters
+            </CardTitle>
             <Building className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -322,7 +359,12 @@ const ChapterManagement: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(chapters.reduce((sum, chapter) => sum + chapter.total_revenue, 0))}
+              {formatCurrency(
+                chapters.reduce(
+                  (sum, chapter) => sum + chapter.total_revenue,
+                  0
+                )
+              )}
             </div>
           </CardContent>
         </Card>
@@ -331,9 +373,7 @@ const ChapterManagement: React.FC = () => {
       {/* Chapters Table */}
       <Card>
         <CardHeader>
-          <CardTitle>
-            Chapters ({filteredChapters.length})
-          </CardTitle>
+          <CardTitle>Chapters ({filteredChapters.length})</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -353,6 +393,7 @@ const ChapterManagement: React.FC = () => {
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
+
               <TableBody>
                 {filteredChapters.map((chapter) => (
                   <TableRow key={chapter.id}>
@@ -366,10 +407,14 @@ const ChapterManagement: React.FC = () => {
                       {chapter.leader ? (
                         <div className="flex items-center gap-2">
                           <UserCheck className="h-3 w-3 text-success" />
-                          <span className="text-sm">{chapter.leader.full_name || chapter.leader.email}</span>
+                          <span className="text-sm">
+                            {chapter.leader.full_name || chapter.leader.email}
+                          </span>
                         </div>
                       ) : (
-                        <span className="text-muted-foreground">No leader assigned</span>
+                        <span className="text-muted-foreground">
+                          No leader assigned
+                        </span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -391,6 +436,7 @@ const ChapterManagement: React.FC = () => {
                     <TableCell>
                       {new Date(chapter.created_at).toLocaleDateString()}
                     </TableCell>
+
                     <TableCell className="text-right">
                       <div className="flex items-center gap-2 justify-end">
                         <Button
@@ -400,12 +446,13 @@ const ChapterManagement: React.FC = () => {
                             setEditingChapter(chapter);
                             form.reset({
                               name: chapter.name,
-                              leader_id: chapter.leader_id || ''
+                              leader_id: chapter.leader_id || "none",
                             });
                           }}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
+
                         <Button
                           variant="ghost"
                           size="sm"
@@ -425,7 +472,10 @@ const ChapterManagement: React.FC = () => {
       </Card>
 
       {/* Edit Chapter Dialog */}
-      <Dialog open={!!editingChapter} onOpenChange={(open) => !open && setEditingChapter(null)}>
+      <Dialog
+        open={!!editingChapter}
+        onOpenChange={(open) => !open && setEditingChapter(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Chapter</DialogTitle>
@@ -434,7 +484,10 @@ const ChapterManagement: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleUpdateChapter)} className="space-y-4">
+            <form
+              onSubmit={form.handleSubmit(handleUpdateChapter)}
+              className="space-y-4"
+            >
               <FormField
                 control={form.control}
                 name="name"
@@ -454,14 +507,17 @@ const ChapterManagement: React.FC = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Chapter Leader</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a leader (optional)" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">No Leader</SelectItem>
+                        <SelectItem value="none">No Leader</SelectItem>
                         {availableLeaders.map((leader) => (
                           <SelectItem key={leader.id} value={leader.id}>
                             {leader.full_name || leader.email}
@@ -474,7 +530,11 @@ const ChapterManagement: React.FC = () => {
                 )}
               />
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setEditingChapter(null)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setEditingChapter(null)}
+                >
                   Cancel
                 </Button>
                 <Button type="submit">Update Chapter</Button>

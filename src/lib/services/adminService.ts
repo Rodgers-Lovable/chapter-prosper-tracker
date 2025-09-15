@@ -333,10 +333,10 @@ export const adminService = {
         .from('trades')
         .select(`
           *,
-          user:profiles!trades_user_id_fkey(full_name, email),
+          user:profiles!user_id(full_name, email),
           chapter:chapters(name),
-          source_member:profiles!trades_source_member_id_fkey(full_name, email),
-          beneficiary_member:profiles!trades_beneficiary_member_id_fkey(full_name, email),
+          source_member:profiles!source_member_id(full_name, email),
+          beneficiary_member:profiles!beneficiary_member_id(full_name, email),
           invoices(id, invoice_number, amount, issued_at, paid_at, file_url)
         `, { count: 'exact' });
 

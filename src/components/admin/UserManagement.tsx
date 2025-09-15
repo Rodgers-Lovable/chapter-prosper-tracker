@@ -637,7 +637,7 @@ const UserManagement: React.FC = () => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">No Chapter</SelectItem>
+                          <SelectItem value="none">No Chapter</SelectItem>
                           {chapters.map((chapter) => (
                             <SelectItem key={chapter.id} value={chapter.id}>
                               {chapter.name}
