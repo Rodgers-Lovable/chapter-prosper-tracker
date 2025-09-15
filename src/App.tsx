@@ -8,6 +8,10 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import ChapterLeaderDashboard from "./pages/chapter-leader/ChapterLeaderDashboard";
+import ChapterMembers from "./pages/chapter-leader/ChapterMembers";
+import ChapterMetrics from "./pages/chapter-leader/ChapterMetrics";
+import ChapterTrades from "./pages/chapter-leader/ChapterTrades";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +26,10 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/chapter-leader" element={<ChapterLeaderDashboard />} />
+            <Route path="/chapter-leader/members" element={<ChapterMembers />} />
+            <Route path="/chapter-leader/metrics" element={<ChapterMetrics />} />
+            <Route path="/chapter-leader/trades" element={<ChapterTrades />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
