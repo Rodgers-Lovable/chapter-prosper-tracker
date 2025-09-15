@@ -119,7 +119,16 @@ const UserManagement: React.FC = () => {
 
   const handleCreateUser = async (data: UserFormData) => {
     try {
-      await adminService.createUser(data);
+      const userData = {
+        email: data.email,
+        full_name: data.full_name,
+        role: data.role,
+        chapter_id: data.chapter_id || undefined,
+        business_name: data.business_name || undefined,
+        business_description: data.business_description || undefined,
+        phone: data.phone || undefined
+      };
+      await adminService.createUser(userData);
       toast.success('User created successfully');
       setIsCreateDialogOpen(false);
       form.reset();

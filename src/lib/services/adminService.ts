@@ -63,18 +63,18 @@ export interface TradeWithDetails {
   user: {
     full_name: string | null;
     email: string;
-  };
+  } | null;
   chapter: {
     name: string;
-  };
+  } | null;
   source_member?: {
     full_name: string | null;
     email: string;
-  };
+  } | null;
   beneficiary_member?: {
     full_name: string | null;
     email: string;
-  };
+  } | null;
   invoices: Array<{
     id: string;
     invoice_number: string;
@@ -233,7 +233,7 @@ export const adminService = {
 
       // Apply filters
       if (filters?.role) {
-        query = query.eq('role', filters.role);
+        query = query.eq('role', filters.role as 'member' | 'chapter_leader' | 'administrator');
       }
       if (filters?.chapter_id) {
         query = query.eq('chapter_id', filters.chapter_id);
@@ -353,7 +353,7 @@ export const adminService = {
 
       // Apply filters
       if (filters?.status) {
-        query = query.eq('status', filters.status);
+        query = query.eq('status', filters.status as 'pending' | 'paid' | 'invoiced' | 'failed');
       }
       if (filters?.chapter_id) {
         query = query.eq('chapter_id', filters.chapter_id);
@@ -374,8 +374,17 @@ export const adminService = {
 
       if (error) throw error;
 
+      // Transform the data to handle potential query errors
+      const transformedTrades = (data || []).map(trade => ({
+        ...trade,
+        user: Array.isArray(trade.user) ? trade.user[0] || null : trade.user,
+        chapter: Array.isArray(trade.chapter) ? trade.chapter[0] || null : trade.chapter,
+        source_member: Array.isArray(trade.source_member) ? trade.source_member[0] || null : trade.source_member,
+        beneficiary_member: Array.isArray(trade.beneficiary_member) ? trade.beneficiary_member[0] || null : trade.beneficiary_member,
+      }));
+
       return {
-        trades: data || [],
+        trades: transformedTrades as TradeWithDetails[],
         totalCount: count || 0
       };
     } catch (error) {
