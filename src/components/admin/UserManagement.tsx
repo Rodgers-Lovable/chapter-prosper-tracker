@@ -145,23 +145,40 @@ const UserManagement: React.FC = () => {
     if (!editingUser) return;
     
     try {
-      const updateData = {
-        full_name: data.full_name,
-        role: data.role,
-        chapter_id: data.chapter_id || null,
-        business_name: data.business_name || null,
-        business_description: data.business_description || null,
-        phone: data.phone || null
-      };
+      console.log('Updating user with form data:', data);
       
-      await adminService.updateUser(editingUser.id, updateData);
-      toast.success('User updated successfully');
+      const updateData = {
+        full_name: data.full_name?.trim(),
+        role: data.role,
+        chapter_id: data.chapter_id === '' || data.chapter_id === 'none' ? null : data.chapter_id,
+        business_name: data.business_name?.trim() || null,
+        business_description: data.business_description?.trim() || null,
+        phone: data.phone?.trim() || null
+      };
+
+      console.log('Prepared update data:', updateData);
+      
+      const result = await adminService.updateUser(editingUser.id, updateData);
+      console.log('Update result:', result);
+      
+      toast.success(`User ${data.full_name} updated successfully`);
       setEditingUser(null);
       form.reset();
-      loadUsers();
+      await loadUsers(); // Refresh the user list
     } catch (error: any) {
       console.error('Error updating user:', error);
-      toast.error(error.message || 'Failed to update user');
+      
+      // More specific error messages
+      let errorMessage = 'Failed to update user';
+      if (error.message?.includes('permission')) {
+        errorMessage = 'You do not have permission to update this user';
+      } else if (error.message?.includes('not found')) {
+        errorMessage = 'User not found';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
     }
   };
 
@@ -502,7 +519,9 @@ const UserManagement: React.FC = () => {
                             variant="ghost"
                             size="sm"
                             onClick={() => {
+                              console.log('Editing user:', user);
                               setEditingUser(user);
+                              // Set form values for editing
                               form.reset({
                                 email: user.email,
                                 full_name: user.full_name || '',
@@ -608,7 +627,7 @@ const UserManagement: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Role *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select role" />
@@ -630,7 +649,7 @@ const UserManagement: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Chapter</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ''}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select chapter" />

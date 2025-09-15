@@ -304,17 +304,39 @@ export const adminService = {
   // Update user
   async updateUser(userId: string, userData: Partial<UserWithChapter>) {
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update(userData)
-        .eq('id', userId);
+      // Prepare update data with timestamp
+      const updateData = {
+        ...userData,
+        updated_at: new Date().toISOString()
+      };
 
-      if (error) throw error;
+      // Remove any undefined/null chapter_id and convert to null for database
+      if (updateData.chapter_id === '' || updateData.chapter_id === 'none') {
+        updateData.chapter_id = null;
+      }
+
+      console.log('Updating user:', userId, 'with data:', updateData);
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(updateData)
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Supabase update error:', error);
+        throw error;
+      }
+
+      console.log('User updated successfully:', data);
 
       await this.logAdminAction('user_updated', {
         target_user_id: userId,
         updated_fields: userData
       });
+
+      return data;
     } catch (error) {
       console.error('Error updating user:', error);
       throw error;
