@@ -290,7 +290,7 @@ const UserManagement: React.FC = () => {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="">No Chapter</SelectItem>
+                            <SelectItem value="none">No Chapter</SelectItem>
                             {chapters.map((chapter) => (
                               <SelectItem key={chapter.id} value={chapter.id}>
                                 {chapter.name}
@@ -380,7 +380,7 @@ const UserManagement: React.FC = () => {
                 <SelectValue placeholder="Filter by role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Roles</SelectItem>
+                <SelectItem value="all">All Roles</SelectItem>
                 <SelectItem value="member">Member</SelectItem>
                 <SelectItem value="chapter_leader">Chapter Leader</SelectItem>
                 <SelectItem value="administrator">Administrator</SelectItem>
@@ -394,7 +394,7 @@ const UserManagement: React.FC = () => {
                 <SelectValue placeholder="Filter by chapter" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Chapters</SelectItem>
+                <SelectItem value="all">All Chapters</SelectItem>
                 {chapters.map((chapter) => (
                   <SelectItem key={chapter.id} value={chapter.id}>
                     {chapter.name}

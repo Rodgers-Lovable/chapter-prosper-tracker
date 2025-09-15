@@ -41,8 +41,8 @@ const TradeManagement: React.FC = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({
-    status: '',
-    chapter_id: '',
+    status: 'all',
+    chapter_id: 'all',
     search: '',
     date_from: '',
     date_to: ''
@@ -57,9 +57,9 @@ const TradeManagement: React.FC = () => {
     try {
       setLoading(true);
       const { trades: tradesData, totalCount } = await adminService.getTrades(
-        currentPage, 
-        20, 
-        Object.fromEntries(Object.entries(filters).filter(([_, v]) => v))
+        currentPage,
+        20,
+        Object.fromEntries(Object.entries(filters).filter(([_, v]) => v && v !== 'all'))
       );
       setTrades(tradesData);
       setTotalCount(totalCount);
@@ -249,7 +249,7 @@ const TradeManagement: React.FC = () => {
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Statuses</SelectItem>
+                <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="paid">Paid</SelectItem>
                 <SelectItem value="invoiced">Invoiced</SelectItem>
@@ -264,7 +264,7 @@ const TradeManagement: React.FC = () => {
                 <SelectValue placeholder="Filter by chapter" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Chapters</SelectItem>
+                <SelectItem value="all">All Chapters</SelectItem>
                 {chapters.map((chapter) => (
                   <SelectItem key={chapter.id} value={chapter.id}>
                     {chapter.name}
@@ -286,9 +286,9 @@ const TradeManagement: React.FC = () => {
             />
           </div>
           <div className="flex justify-end mt-4">
-            <Button 
-              variant="outline" 
-              onClick={() => setFilters({ status: '', chapter_id: '', search: '', date_from: '', date_to: '' })}
+            <Button
+              variant="outline"
+              onClick={() => setFilters({ status: 'all', chapter_id: 'all', search: '', date_from: '', date_to: '' })}
             >
               Clear Filters
             </Button>

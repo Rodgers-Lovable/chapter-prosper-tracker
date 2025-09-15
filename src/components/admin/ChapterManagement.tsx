@@ -45,6 +45,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
+import { PostgrestError } from '@supabase/supabase-js';
 
 const chapterFormSchema = z.object({
   name: z.string().min(2, 'Chapter name must be at least 2 characters'),
@@ -253,7 +254,7 @@ const ChapterManagement: React.FC = () => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">No Leader</SelectItem>
+                          <SelectItem value="none">No Leader</SelectItem>
                           {availableLeaders.map((leader) => (
                             <SelectItem key={leader.id} value={leader.id}>
                               {leader.full_name || leader.email}

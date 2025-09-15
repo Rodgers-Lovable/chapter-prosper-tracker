@@ -236,7 +236,7 @@ const AuditTrail: React.FC = () => {
                 <SelectValue placeholder="Filter by action type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Actions</SelectItem>
+                <SelectItem value="all">All Actions</SelectItem>
                 <SelectItem value="user">User Actions</SelectItem>
                 <SelectItem value="chapter">Chapter Actions</SelectItem>
                 <SelectItem value="trade">Trade Actions</SelectItem>
