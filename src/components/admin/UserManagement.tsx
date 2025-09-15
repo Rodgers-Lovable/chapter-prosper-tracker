@@ -37,7 +37,9 @@ import {
   Users,
   DollarSign,
   TrendingUp,
-  UserCheck
+  UserCheck,
+  Mail,
+  Phone
 } from 'lucide-react';
 import { adminService, type UserWithChapter, type ChapterWithStats } from '@/lib/services/adminService';
 import { toast } from 'sonner';
