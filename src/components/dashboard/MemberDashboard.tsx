@@ -1,209 +1,131 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth';
 import AppLayout from '@/components/layout/AppLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { 
-  Users, 
-  GraduationCap, 
-  Activity, 
-  Network, 
-  DollarSign,
-  Plus,
-  TrendingUp,
-  Calendar
-} from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ProfileManagement from '@/components/member/ProfileManagement';
+import MetricsInput from '@/components/member/MetricsInput';
+import MetricsChart from '@/components/member/MetricsChart';
+import MetricsHistory from '@/components/member/MetricsHistory';
+import TradeDeclaration from '@/components/member/TradeDeclaration';
+import TradesPanel from '@/components/member/TradesPanel';
+import Leaderboard from '@/components/member/Leaderboard';
+import ReportsPanel from '@/components/member/ReportsPanel';
+import { metricsService, MetricEntry, MetricsSummary } from '@/lib/services/metricsService';
+import { tradesService, TradeWithProfiles } from '@/lib/services/tradesService';
 
 const MemberDashboard = () => {
   const { profile } = useAuth();
+  const [metrics, setMetrics] = useState<MetricEntry[]>([]);
+  const [trades, setTrades] = useState<TradeWithProfiles[]>([]);
+  const [summary, setSummary] = useState<MetricsSummary>({
+    participation: 0, learning: 0, activity: 0, networking: 0, trade: 0
+  });
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [chartType, setChartType] = useState<'line' | 'bar'>('line');
+  const [loading, setLoading] = useState(true);
 
-  const metrics = [
-    {
-      title: 'Participation',
-      icon: Users,
-      value: '85%',
-      description: 'Attendance rate',
-      color: 'participation',
-      change: '+5% from last month'
-    },
-    {
-      title: 'Learning',
-      icon: GraduationCap,
-      value: '12',
-      description: 'Hours this month',
-      color: 'learning',
-      change: '+3 hours from last month'
-    },
-    {
-      title: 'Activity',
-      icon: Activity,
-      value: '8',
-      description: 'Referrals given',
-      color: 'activity',
-      change: '+2 from last month'
-    },
-    {
-      title: 'Networking',
-      icon: Network,
-      value: '15',
-      description: '1:1 meetings',
-      color: 'networking',
-      change: '+5 from last month'
-    },
-    {
-      title: 'Trade',
-      icon: DollarSign,
-      value: 'KSh 125,000',
-      description: 'Business passed',
-      color: 'trade',
-      change: '+KSh 25,000 from last month'
+  const loadData = async () => {
+    if (!profile?.id || !profile?.chapter_id) return;
+    
+    setLoading(true);
+    try {
+      const [metricsResult, tradesResult, summaryResult, leaderboardResult] = await Promise.all([
+        metricsService.getUserMetrics(profile.id),
+        tradesService.getUserTrades(profile.id),
+        metricsService.getMetricsSummary(profile.id),
+        metricsService.getChapterLeaderboard(profile.chapter_id)
+      ]);
+
+      if (metricsResult.data) setMetrics(metricsResult.data);
+      if (tradesResult.data) setTrades(tradesResult.data);
+      if (summaryResult.data) setSummary(summaryResult.data);
+      if (leaderboardResult.data) setLeaderboard(leaderboardResult.data);
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
-
-  const getMetricColor = (color: string) => {
-    const colors = {
-      participation: 'text-participation',
-      learning: 'text-learning',
-      activity: 'text-activity',
-      networking: 'text-networking',
-      trade: 'text-trade'
-    };
-    return colors[color as keyof typeof colors] || 'text-primary';
   };
+
+  useEffect(() => {
+    loadData();
+  }, [profile]);
 
   return (
     <AppLayout>
-      <div className="p-4 md:p-6 space-y-6">
-        {/* Welcome Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-bold">Welcome back, {profile?.full_name}!</h2>
-            <p className="text-muted-foreground">
-              Here's your PLANT metrics overview for this month
-            </p>
-          </div>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Metrics
-          </Button>
+      <div className="p-4 md:p-6">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold">Welcome back, {profile?.full_name}!</h2>
+          <p className="text-muted-foreground">
+            Manage your PLANT metrics, trades, and business networking activities
+          </p>
         </div>
 
-        {/* Metrics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          {metrics.map((metric) => {
-            const Icon = metric.icon;
-            return (
-              <Card key={metric.title} className="relative overflow-hidden">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    {metric.title}
-                  </CardTitle>
-                  <Icon className={`h-4 w-4 ${getMetricColor(metric.color)}`} />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{metric.value}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {metric.description}
-                  </p>
-                  <div className="flex items-center pt-2">
-                    <TrendingUp className="h-3 w-3 text-success mr-1" />
-                    <span className="text-xs text-success">
-                      {metric.change}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="metrics">Metrics</TabsTrigger>
+            <TabsTrigger value="trades">Trades</TabsTrigger>
+            <TabsTrigger value="leaderboard">Rankings</TabsTrigger>
+            <TabsTrigger value="reports">Reports</TabsTrigger>
+          </TabsList>
 
-        {/* Chapter Info */}
-        {profile?.chapter_id && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Chapter Information</CardTitle>
-              <CardDescription>
-                Your current chapter membership details
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Nairobi Central Chapter</p>
-                  <p className="text-sm text-muted-foreground">
-                    Member since January 2024
-                  </p>
-                </div>
-                <Badge variant="outline">Active Member</Badge>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+          <TabsContent value="overview" className="space-y-6">
+            <MetricsChart 
+              metrics={metrics} 
+              chartType={chartType} 
+              onChartTypeChange={setChartType} 
+            />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TradesPanel trades={trades.slice(0, 5)} isLoading={loading} />
+              <Leaderboard 
+                data={leaderboard.slice(0, 5)} 
+                currentUserId={profile?.id || ''} 
+                isLoading={loading} 
+              />
+            </div>
+          </TabsContent>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Upcoming Events
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Weekly Chapter Meeting</p>
-                    <p className="text-sm text-muted-foreground">Tomorrow, 9:00 AM</p>
-                  </div>
-                  <Badge variant="outline">Required</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Training Workshop</p>
-                    <p className="text-sm text-muted-foreground">Friday, 2:00 PM</p>
-                  </div>
-                  <Badge variant="secondary">Optional</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <TabsContent value="profile">
+            <ProfileManagement onUpdate={loadData} />
+          </TabsContent>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Recent Activity
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-success rounded-full"></div>
-                  <div>
-                    <p className="text-sm font-medium">Gave referral to John Doe</p>
-                    <p className="text-xs text-muted-foreground">2 hours ago</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-learning rounded-full"></div>
-                  <div>
-                    <p className="text-sm font-medium">Completed training module</p>
-                    <p className="text-xs text-muted-foreground">Yesterday</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-trade rounded-full"></div>
-                  <div>
-                    <p className="text-sm font-medium">Recorded KSh 50,000 trade</p>
-                    <p className="text-xs text-muted-foreground">3 days ago</p>
-                  </div>
-                </div>
+          <TabsContent value="metrics" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <MetricsInput onMetricAdded={loadData} />
+              <div className="space-y-6">
+                <MetricsChart 
+                  metrics={metrics} 
+                  chartType={chartType} 
+                  onChartTypeChange={setChartType} 
+                />
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+            <MetricsHistory metrics={metrics} isLoading={loading} />
+          </TabsContent>
+
+          <TabsContent value="trades" className="space-y-6">
+            <TradeDeclaration onTradeAdded={loadData} />
+            <TradesPanel trades={trades} isLoading={loading} />
+          </TabsContent>
+
+          <TabsContent value="leaderboard">
+            <Leaderboard 
+              data={leaderboard} 
+              currentUserId={profile?.id || ''} 
+              isLoading={loading} 
+            />
+          </TabsContent>
+
+          <TabsContent value="reports">
+            <ReportsPanel 
+              metrics={metrics}
+              trades={trades}
+              summary={summary}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </AppLayout>
   );
