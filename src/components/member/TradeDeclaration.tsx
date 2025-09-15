@@ -73,8 +73,8 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({ onTradeAdded }) => 
         chapter_id: profile.chapter_id,
         amount: data.amount,
         description: data.description,
-        source_member_id: data.source_member_id || null,
-        beneficiary_member_id: data.beneficiary_member_id || null,
+        source_member_id: data.source_member_id && data.source_member_id !== 'none' ? data.source_member_id : null,
+        beneficiary_member_id: data.beneficiary_member_id && data.beneficiary_member_id !== 'none' ? data.beneficiary_member_id : null,
         status: 'pending'
       });
 
@@ -178,14 +178,14 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({ onTradeAdded }) => 
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Source Member (Optional)</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={(val) => field.onChange(val === 'none' ? '' : val)} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select source member" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">None</SelectItem>
+                        <SelectItem value="none">None</SelectItem>
                         {chapterMembers.map((member) => (
                           <SelectItem key={member.id} value={member.id}>
                             <div className="flex items-center gap-2">
@@ -212,14 +212,14 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({ onTradeAdded }) => 
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Beneficiary Member (Optional)</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={(val) => field.onChange(val === 'none' ? '' : val)} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select beneficiary" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">None</SelectItem>
+                        <SelectItem value="none">None</SelectItem>
                         {chapterMembers.map((member) => (
                           <SelectItem key={member.id} value={member.id}>
                             <div className="flex items-center gap-2">
