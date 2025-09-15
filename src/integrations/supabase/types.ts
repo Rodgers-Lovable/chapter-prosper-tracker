@@ -14,16 +14,268 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          new_values: Json | null
+          old_values: Json | null
+          record_id: string | null
+          table_name: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      chapters: {
+        Row: {
+          created_at: string | null
+          id: string
+          leader_id: string | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          leader_id?: string | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          leader_id?: string | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          amount: number
+          created_at: string | null
+          file_url: string | null
+          id: string
+          invoice_number: string
+          issued_at: string | null
+          paid_at: string | null
+          trade_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          file_url?: string | null
+          id?: string
+          invoice_number: string
+          issued_at?: string | null
+          paid_at?: string | null
+          trade_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          file_url?: string | null
+          id?: string
+          invoice_number?: string
+          issued_at?: string | null
+          paid_at?: string | null
+          trade_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_trade_id_fkey"
+            columns: ["trade_id"]
+            isOneToOne: false
+            referencedRelation: "trades"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      metrics: {
+        Row: {
+          chapter_id: string
+          created_at: string | null
+          date: string
+          description: string | null
+          id: string
+          metric_type: Database["public"]["Enums"]["metric_type"]
+          updated_at: string | null
+          user_id: string
+          value: number
+        }
+        Insert: {
+          chapter_id: string
+          created_at?: string | null
+          date?: string
+          description?: string | null
+          id?: string
+          metric_type: Database["public"]["Enums"]["metric_type"]
+          updated_at?: string | null
+          user_id: string
+          value?: number
+        }
+        Update: {
+          chapter_id?: string
+          created_at?: string | null
+          date?: string
+          description?: string | null
+          id?: string
+          metric_type?: Database["public"]["Enums"]["metric_type"]
+          updated_at?: string | null
+          user_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "metrics_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          business_description: string | null
+          business_name: string | null
+          chapter_id: string | null
+          created_at: string | null
+          email: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          business_description?: string | null
+          business_name?: string | null
+          chapter_id?: string | null
+          created_at?: string | null
+          email: string
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          business_description?: string | null
+          business_name?: string | null
+          chapter_id?: string | null
+          created_at?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trades: {
+        Row: {
+          amount: number
+          beneficiary_member_id: string | null
+          chapter_id: string
+          created_at: string | null
+          description: string | null
+          id: string
+          mpesa_reference: string | null
+          source_member_id: string | null
+          status: Database["public"]["Enums"]["trade_status"] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          beneficiary_member_id?: string | null
+          chapter_id: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          mpesa_reference?: string | null
+          source_member_id?: string | null
+          status?: Database["public"]["Enums"]["trade_status"] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          beneficiary_member_id?: string | null
+          chapter_id?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          mpesa_reference?: string | null
+          source_member_id?: string | null
+          status?: Database["public"]["Enums"]["trade_status"] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trades_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_chapter: {
+        Args: { user_uuid: string }
+        Returns: string
+      }
+      get_user_role: {
+        Args: { user_uuid: string }
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
     }
     Enums: {
-      [_ in never]: never
+      metric_type:
+        | "participation"
+        | "learning"
+        | "activity"
+        | "networking"
+        | "trade"
+      trade_status: "pending" | "paid" | "invoiced" | "failed"
+      user_role: "member" | "chapter_leader" | "administrator"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +402,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      metric_type: [
+        "participation",
+        "learning",
+        "activity",
+        "networking",
+        "trade",
+      ],
+      trade_status: ["pending", "paid", "invoiced", "failed"],
+      user_role: ["member", "chapter_leader", "administrator"],
+    },
   },
 } as const
