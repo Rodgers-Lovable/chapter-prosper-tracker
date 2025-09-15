@@ -277,40 +277,24 @@ export const adminService = {
     phone?: string;
   }) {
     try {
-      // Create user in Auth
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: userData.email,
-        password: 'temp123456', // Temporary password - user will need to reset
-        email_confirm: true,
-        user_metadata: {
-          full_name: userData.full_name
-        }
+      // Call the edge function to create user with service role privileges
+      const { data, error } = await supabase.functions.invoke('create-user', {
+        body: userData
       });
 
-      if (authError) throw authError;
+      if (error) throw error;
 
-      // Update profile with additional data
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          full_name: userData.full_name,
-          role: userData.role,
-          chapter_id: userData.chapter_id || null,
-          business_name: userData.business_name || null,
-          business_description: userData.business_description || null,
-          phone: userData.phone || null
-        })
-        .eq('id', authData.user.id);
-
-      if (profileError) throw profileError;
+      if (data.error) {
+        throw new Error(data.error);
+      }
 
       // Log the action
       await this.logAdminAction('user_created', {
-        target_user_id: authData.user.id,
+        target_user_id: data.data.id,
         user_data: userData
       });
 
-      return authData.user;
+      return data.data;
     } catch (error) {
       console.error('Error creating user:', error);
       throw error;
