@@ -12,6 +12,7 @@ import { DollarSign, Users } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { tradesService } from '@/lib/services/tradesService';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const tradeSchema = z.object({
   amount: z.number().min(1, 'Amount must be greater than 0'),
@@ -56,6 +57,50 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({ onTradeAdded }) => 
     loadChapterMembers();
   }, [profile]);
 
+  const initiatePayment = async (tradeId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('process-payment', {
+        body: {
+          tradeId,
+          phoneNumber: profile?.phone || '',
+          amount: form.getValues('amount')
+        }
+      });
+
+      if (error) {
+        console.error('Payment initiation error:', error);
+        // If MPESA fails, generate invoice
+        await generateInvoice(tradeId);
+      } else {
+        console.log('Payment initiated successfully:', data);
+      }
+    } catch (error) {
+      console.error('Payment initiation failed:', error);
+      // Fallback to invoice generation
+      await generateInvoice(tradeId);
+    }
+  };
+
+  const generateInvoice = async (tradeId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-invoice', {
+        body: { tradeId }
+      });
+
+      if (error) {
+        console.error('Invoice generation error:', error);
+      } else {
+        console.log('Invoice generated successfully:', data);
+        toast({
+          title: "Invoice Generated",
+          description: "An invoice has been sent to your email. Please complete payment within 30 days."
+        });
+      }
+    } catch (error) {
+      console.error('Invoice generation failed:', error);
+    }
+  };
+
   const onSubmit = async (data: TradeFormData) => {
     if (!profile?.id || !profile?.chapter_id) {
       toast({
@@ -68,7 +113,7 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({ onTradeAdded }) => 
 
     setIsLoading(true);
     try {
-      const { error } = await tradesService.createTrade({
+      const { data: createdTrade, error } = await tradesService.createTrade({
         user_id: profile.id,
         chapter_id: profile.chapter_id,
         amount: data.amount,
@@ -100,8 +145,10 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({ onTradeAdded }) => 
         description: "Trade declared successfully! Payment processing will begin shortly."
       });
 
-      // TODO: Trigger MPESA STK Push here
-      // This would typically call an edge function for payment processing
+      // Trigger payment processing
+      if (createdTrade) {
+        await initiatePayment(createdTrade.id);
+      }
       
     } catch (error) {
       toast({
