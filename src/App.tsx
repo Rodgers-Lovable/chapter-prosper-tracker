@@ -12,6 +12,7 @@ import ChapterLeaderDashboard from "./pages/chapter-leader/ChapterLeaderDashboar
 import ChapterMembers from "./pages/chapter-leader/ChapterMembers";
 import ChapterMetrics from "./pages/chapter-leader/ChapterMetrics";
 import ChapterReports from "./pages/chapter-leader/ChapterReports";
+import ChapterTrades from "./pages/chapter-leader/ChapterTrades";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/chapter-leader/members" element={<ChapterMembers />} />
             <Route path="/chapter-leader/metrics" element={<ChapterMetrics />} />
             <Route path="/chapter-leader/reports" element={<ChapterReports />} />
+            <Route path="/chapter-leader/trades" element={<ChapterTrades />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
