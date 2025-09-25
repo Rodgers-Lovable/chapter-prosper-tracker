@@ -192,12 +192,12 @@ const ChapterLeaderDashboard = () => {
                 Send Reminder
               </Button>
             </Link>
-            <Link to="/chapter-leader/members">
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
+            <Button asChild>
+              <Link to="/chapter-leader/members">
+                <Users className="mr-2 h-4 w-4" />
                 Manage Members
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
 
