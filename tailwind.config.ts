@@ -59,6 +59,13 @@ export default {
           DEFAULT: "hsl(var(--info))",
           foreground: "hsl(var(--info-foreground))",
         },
+        // Brand colors
+        "golden-yellow": "hsl(var(--golden-yellow))",
+        "navy-blue": "hsl(var(--navy-blue))",
+        "navy-blue-end": "hsl(var(--navy-blue-end))",
+        "light-gray-overlay": "hsl(var(--light-gray-overlay))",
+        "orange-tint": "hsl(var(--orange-tint))",
+        // Metric colors updated to brand palette
         participation: "hsl(var(--participation))",
         learning: "hsl(var(--learning))",
         activity: "hsl(var(--activity))",
@@ -79,6 +86,10 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      backgroundImage: {
+        "gradient-navy": "var(--gradient-navy)",
+        "gradient-golden": "var(--gradient-golden)",
       },
       keyframes: {
         "accordion-down": {

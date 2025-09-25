@@ -29,7 +29,7 @@ const AdminNavigation: React.FC<AdminNavigationProps> = ({ activeTab, onTabChang
   ];
 
   return (
-    <Card className="mb-6">
+    <Card className="mb-6 shadow-md border-border">
       <CardContent className="p-4">
         <div className="flex flex-wrap gap-2">
           {navigationItems.map((item) => {

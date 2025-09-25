@@ -8,48 +8,64 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
+    /* Brand Colors - Golden Yellow & Navy Blue Theme */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 0 0% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 0 0% 20%;
 
-    --primary: 142 76% 36%;
-    --primary-foreground: 0 0% 98%;
+    /* Golden Yellow Primary */
+    --primary: 43 74% 52%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Navy Blue Secondary */
+    --secondary: 210 100% 20%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Light Gray for muted elements */
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 142 76% 36%;
-    --accent-foreground: 0 0% 98%;
+    /* Golden Yellow Accent */
+    --accent: 43 74% 52%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 142 76% 36%;
+    --border: 0 0% 90%;
+    --input: 0 0% 96%;
+    --ring: 43 74% 52%;
 
-    /* PLANT Metrics specific colors */
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 98%;
-    --warning: 43 96% 56%;
-    --warning-foreground: 222.2 84% 4.9%;
-    --info: 217 91% 60%;
-    --info-foreground: 0 0% 98%;
+    /* Brand specific colors */
+    --golden-yellow: 43 74% 52%;
+    --navy-blue: 210 100% 20%;
+    --navy-blue-end: 226 81% 25%;
+    --light-gray-overlay: 0 0% 96%;
+    --orange-tint: 43 74% 65%;
     
-    /* Metric specific colors */
-    --participation: 262 52% 47%;
-    --learning: 217 91% 60%;
-    --activity: 43 96% 56%;
-    --networking: 142 76% 36%;
-    --trade: 339 81% 56%;
+    /* Updated semantic colors using brand palette */
+    --success: 43 74% 52%;
+    --success-foreground: 0 0% 100%;
+    --warning: 43 74% 65%;
+    --warning-foreground: 0 0% 0%;
+    --info: 226 81% 25%;
+    --info-foreground: 0 0% 100%;
+    
+    /* Metric specific colors updated to brand palette */
+    --participation: 226 81% 25%;
+    --learning: 226 81% 25%;
+    --activity: 43 74% 52%;
+    --networking: 43 74% 65%;
+    --trade: 210 100% 20%;
+
+    /* Gradients */
+    --gradient-navy: linear-gradient(135deg, hsl(210 100% 20%), hsl(226 81% 25%));
+    --gradient-golden: linear-gradient(135deg, hsl(43 74% 52%), hsl(43 74% 65%));
 
     --radius: 0.5rem;
 
@@ -71,48 +87,60 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Dark mode with brand colors */
+    --background: 210 100% 20%;
+    --foreground: 0 0% 100%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 226 81% 25%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 226 81% 25%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 142 76% 36%;
-    --primary-foreground: 0 0% 98%;
+    /* Golden Yellow Primary (same in dark) */
+    --primary: 43 74% 52%;
+    --primary-foreground: 0 0% 0%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    /* Darker Navy Blue Secondary */
+    --secondary: 226 81% 25%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    /* Dark muted */
+    --muted: 226 81% 15%;
+    --muted-foreground: 0 0% 70%;
 
-    --accent: 142 76% 36%;
-    --accent-foreground: 0 0% 98%;
+    /* Golden Yellow Accent */
+    --accent: 43 74% 52%;
+    --accent-foreground: 0 0% 0%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 142 76% 36%;
+    --border: 226 81% 15%;
+    --input: 226 81% 15%;
+    --ring: 43 74% 52%;
 
-    /* PLANT Metrics specific colors - dark mode */
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 98%;
-    --warning: 43 96% 56%;
-    --warning-foreground: 222.2 84% 4.9%;
-    --info: 217 91% 60%;
-    --info-foreground: 0 0% 98%;
+    /* Brand specific colors - dark mode */
+    --golden-yellow: 43 74% 52%;
+    --navy-blue: 210 100% 20%;
+    --navy-blue-end: 226 81% 25%;
+    --light-gray-overlay: 0 0% 20%;
+    --orange-tint: 43 74% 65%;
+    
+    /* Updated semantic colors - dark mode */
+    --success: 43 74% 52%;
+    --success-foreground: 0 0% 0%;
+    --warning: 43 74% 65%;
+    --warning-foreground: 0 0% 0%;
+    --info: 226 81% 25%;
+    --info-foreground: 0 0% 100%;
     
     /* Metric specific colors - dark mode */
-    --participation: 262 52% 47%;
-    --learning: 217 91% 60%;
-    --activity: 43 96% 56%;
-    --networking: 142 76% 36%;
-    --trade: 339 81% 56%;
+    --participation: 226 81% 35%;
+    --learning: 226 81% 35%;
+    --activity: 43 74% 52%;
+    --networking: 43 74% 65%;
+    --trade: 210 100% 30%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;

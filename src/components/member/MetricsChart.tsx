@@ -53,20 +53,20 @@ const MetricsChart: React.FC<MetricsChartProps> = ({
   const chartData = processChartData();
 
   const metricColors = {
-    participation: '#8884d8',
-    learning: '#82ca9d',
-    activity: '#ffc658',
-    networking: '#ff7300',
-    trade: '#00ff00'
+    participation: 'hsl(226, 81%, 25%)', // Navy Blue
+    learning: 'hsl(226, 81%, 35%)', // Lighter Navy
+    activity: 'hsl(43, 74%, 52%)', // Golden Yellow
+    networking: 'hsl(43, 74%, 65%)', // Orange Tint
+    trade: 'hsl(210, 100%, 20%)' // Dark Navy
   };
 
   return (
-    <Card>
+    <Card className="shadow-md border-border">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-navy-blue">
+              <TrendingUp className="h-5 w-5 text-primary" />
               Metrics Trend
             </CardTitle>
             <CardDescription>
@@ -89,10 +89,16 @@ const MetricsChart: React.FC<MetricsChartProps> = ({
           <ResponsiveContainer width="100%" height="100%">
             {chartType === 'line' ? (
               <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted-foreground))" />
+                <XAxis dataKey="month" stroke="hsl(var(--foreground))" />
+                <YAxis stroke="hsl(var(--foreground))" />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px'
+                  }}
+                />
                 <Legend />
                 <Line 
                   type="monotone" 
@@ -132,10 +138,16 @@ const MetricsChart: React.FC<MetricsChartProps> = ({
               </LineChart>
             ) : (
               <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted-foreground))" />
+                <XAxis dataKey="month" stroke="hsl(var(--foreground))" />
+                <YAxis stroke="hsl(var(--foreground))" />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px'
+                  }}
+                />
                 <Legend />
                 <Bar dataKey="participation" fill={metricColors.participation} name="Participation" />
                 <Bar dataKey="learning" fill={metricColors.learning} name="Learning" />
