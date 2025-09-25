@@ -331,7 +331,7 @@ export const chapterLeaderService = {
     }
   },
 
-  async sendMemberReminder(userId: string, type: 'metrics' | 'payment', message: string): Promise<{ success: boolean; error?: any }> {
+  async sendMemberReminder(userId: string, type: 'metrics' | 'payment' | 'general', message: string): Promise<{ success: boolean; error?: any }> {
     try {
       // This would integrate with email service
       // For now, we'll simulate the functionality

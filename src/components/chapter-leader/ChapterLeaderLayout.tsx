@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '@/lib/auth';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, Link } from 'react-router-dom';
 import AppLayout from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -95,26 +95,26 @@ const ChapterLeaderLayout: React.FC<ChapterLeaderLayoutProps> = ({ children }) =
                 (item.path !== '/chapter-leader' && currentPath.startsWith(item.path));
               
               return (
-                <Button
-                  key={item.path}
-                  variant={isActive ? "default" : "ghost"}
-                  className={cn(
-                    "w-full justify-start h-auto p-3",
-                    isActive && "bg-primary text-primary-foreground"
-                  )}
-                  onClick={() => window.location.href = item.path}
-                >
-                  <Icon className="mr-3 h-4 w-4" />
-                  <div className="text-left">
-                    <div className="font-medium">{item.name}</div>
-                    <div className={cn(
-                      "text-xs",
-                      isActive ? "text-primary-foreground/70" : "text-muted-foreground"
-                    )}>
-                      {item.description}
+                <Link key={item.path} to={item.path} className="block">
+                  <Button
+                    variant={isActive ? "default" : "ghost"}
+                    className={cn(
+                      "w-full justify-start h-auto p-3",
+                      isActive && "bg-primary text-primary-foreground"
+                    )}
+                  >
+                    <Icon className="mr-3 h-4 w-4" />
+                    <div className="text-left">
+                      <div className="font-medium">{item.name}</div>
+                      <div className={cn(
+                        "text-xs",
+                        isActive ? "text-primary-foreground/70" : "text-muted-foreground"
+                      )}>
+                        {item.description}
+                      </div>
                     </div>
-                  </div>
-                </Button>
+                  </Button>
+                </Link>
               );
             })}
           </nav>

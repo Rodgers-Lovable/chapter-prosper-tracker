@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth';
+import { Link } from 'react-router-dom';
 import ChapterLeaderLayout from '@/components/chapter-leader/ChapterLeaderLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -185,14 +186,18 @@ const ChapterLeaderDashboard = () => {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => window.location.href = '/chapter-leader/notifications'}>
-              <Calendar className="mr-2 h-4 w-4" />
-              Send Reminder
-            </Button>
-            <Button onClick={() => window.location.href = '/chapter-leader/members'}>
-              <Plus className="mr-2 h-4 w-4" />
-              Manage Members
-            </Button>
+            <Link to="/chapter-leader/notifications">
+              <Button variant="outline">
+                <Calendar className="mr-2 h-4 w-4" />
+                Send Reminder
+              </Button>
+            </Link>
+            <Link to="/chapter-leader/members">
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Manage Members
+              </Button>
+            </Link>
           </div>
         </div>
 
@@ -290,20 +295,16 @@ const ChapterLeaderDashboard = () => {
                         <p className="text-sm text-muted-foreground">{action.description}</p>
                       </div>
                     </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        const routes: Record<string, string> = {
-                          'Members': '/chapter-leader/members',
-                          'Reports': '/chapter-leader/reports',
-                          'Trades': '/chapter-leader/trades'
-                        };
-                        window.location.href = routes[action.type] || '/chapter-leader';
-                      }}
-                    >
-                      Review
-                    </Button>
+                    <Link to={
+                      action.type === 'Members' ? '/chapter-leader/members' :
+                      action.type === 'Reports' ? '/chapter-leader/reports' :
+                      action.type === 'Trades' ? '/chapter-leader/trades' :
+                      '/chapter-leader'
+                    }>
+                      <Button variant="outline" size="sm">
+                        Review
+                      </Button>
+                    </Link>
                   </div>
                 ))}
               </div>
@@ -321,38 +322,30 @@ const ChapterLeaderDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Button 
-                variant="outline" 
-                className="h-20 flex flex-col gap-2"
-                onClick={() => window.location.href = '/chapter-leader/metrics'}
-              >
-                <BarChart3 className="h-6 w-6" />
-                <span className="text-sm">View Metrics</span>
-              </Button>
-              <Button 
-                variant="outline" 
-                className="h-20 flex flex-col gap-2"
-                onClick={() => window.location.href = '/chapter-leader/trades'}
-              >
-                <DollarSign className="h-6 w-6" />
-                <span className="text-sm">Manage Trades</span>
-              </Button>
-              <Button 
-                variant="outline" 
-                className="h-20 flex flex-col gap-2"
-                onClick={() => window.location.href = '/chapter-leader/reports'}
-              >
-                <FileText className="h-6 w-6" />
-                <span className="text-sm">Generate Report</span>
-              </Button>
-              <Button 
-                variant="outline" 
-                className="h-20 flex flex-col gap-2"
-                onClick={() => window.location.href = '/chapter-leader/notifications'}
-              >
-                <Bell className="h-6 w-6" />
-                <span className="text-sm">Send Notifications</span>
-              </Button>
+              <Link to="/chapter-leader/metrics">
+                <Button variant="outline" className="h-20 flex flex-col gap-2 w-full">
+                  <BarChart3 className="h-6 w-6" />
+                  <span className="text-sm">View Metrics</span>
+                </Button>
+              </Link>
+              <Link to="/chapter-leader/trades">
+                <Button variant="outline" className="h-20 flex flex-col gap-2 w-full">
+                  <DollarSign className="h-6 w-6" />
+                  <span className="text-sm">Manage Trades</span>
+                </Button>
+              </Link>
+              <Link to="/chapter-leader/reports">
+                <Button variant="outline" className="h-20 flex flex-col gap-2 w-full">
+                  <FileText className="h-6 w-6" />
+                  <span className="text-sm">Generate Report</span>
+                </Button>
+              </Link>
+              <Link to="/chapter-leader/notifications">
+                <Button variant="outline" className="h-20 flex flex-col gap-2 w-full">
+                  <Bell className="h-6 w-6" />
+                  <span className="text-sm">Send Notifications</span>
+                </Button>
+              </Link>
             </div>
           </CardContent>
         </Card>
