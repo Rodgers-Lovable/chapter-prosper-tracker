@@ -2,7 +2,6 @@ import React from 'react';
 import { useAuth } from '@/lib/auth';
 import { Navigate } from 'react-router-dom';
 import MemberDashboard from '@/components/dashboard/MemberDashboard';
-import ChapterLeaderDashboard from '@/components/dashboard/ChapterLeaderDashboard';
 import AdministratorDashboard from '@/components/dashboard/AdministratorDashboard';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 
@@ -25,7 +24,7 @@ const Dashboard = () => {
     case 'administrator':
       return <AdministratorDashboard />;
     case 'chapter_leader':
-      return <ChapterLeaderDashboard />;
+      return <Navigate to="/chapter-leader" replace />;
     case 'member':
     default:
       return <MemberDashboard />;
