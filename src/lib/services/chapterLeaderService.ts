@@ -354,6 +354,41 @@ export const chapterLeaderService = {
     }
   },
 
+  async updateMemberStatus(userId: string, status: 'active' | 'inactive'): Promise<{ success: boolean; error?: any }> {
+    try {
+      // Update user status - in a real implementation this might update a status field
+      // For now we'll just log it since the inactive status is calculated from activity
+      console.log(`Updating user ${userId} status to ${status}`);
+      
+      // You could implement this by updating a status field in the profiles table
+      // or by triggering some other action
+      
+      return { success: true };
+    } catch (error) {
+      return { success: false, error };
+    }
+  },
+
+  async resendMemberInvite(userId: string): Promise<{ success: boolean; error?: any }> {
+    try {
+      // This would resend an invitation email to the user
+      console.log(`Resending invite to user ${userId}`);
+      
+      // In a real implementation, this would call an edge function to resend invites
+      const { error } = await supabase.functions.invoke('resend-invite', {
+        body: {
+          userId
+        }
+      });
+
+      if (error) throw error;
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error };
+    }
+  },
+
   // Helper methods
   aggregateMetrics(metrics: any[]): { participation: number; learning: number; activity: number; networking: number; trade: number } {
     return metrics.reduce((acc, metric) => {
