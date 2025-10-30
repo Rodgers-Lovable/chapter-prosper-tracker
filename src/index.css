@@ -8,30 +8,30 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Brand Colors - Golden Yellow & Navy Blue Theme */
+    /* MELNET Brand Colors - Orange & Navy Blue from Logo */
     --background: 0 0% 100%;
-    --foreground: 0 0% 20%;
+    --foreground: 215 60% 25%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 20%;
+    --card-foreground: 215 60% 25%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 20%;
+    --popover-foreground: 215 60% 25%;
 
-    /* Golden Yellow Primary */
-    --primary: 43 74% 52%;
+    /* MELNET Orange Primary */
+    --primary: 25 90% 55%;
     --primary-foreground: 0 0% 100%;
 
-    /* Navy Blue Secondary */
-    --secondary: 210 100% 20%;
+    /* MELNET Navy Blue Secondary */
+    --secondary: 215 60% 25%;
     --secondary-foreground: 0 0% 100%;
 
     /* Light Gray for muted elements */
     --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 40%;
+    --muted-foreground: 215 20% 45%;
 
-    /* Golden Yellow Accent */
-    --accent: 43 74% 52%;
+    /* MELNET Orange Accent */
+    --accent: 25 90% 55%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -39,33 +39,33 @@ All colors MUST be HSL.
 
     --border: 0 0% 90%;
     --input: 0 0% 96%;
-    --ring: 43 74% 52%;
+    --ring: 25 90% 55%;
 
-    /* Brand specific colors */
-    --golden-yellow: 43 74% 52%;
-    --navy-blue: 210 100% 20%;
-    --navy-blue-end: 226 81% 25%;
+    /* Brand specific colors from MELNET logo */
+    --golden-yellow: 25 90% 55%;
+    --navy-blue: 215 60% 25%;
+    --navy-blue-end: 220 55% 30%;
     --light-gray-overlay: 0 0% 96%;
-    --orange-tint: 43 74% 65%;
+    --orange-tint: 25 85% 65%;
     
-    /* Updated semantic colors using brand palette */
-    --success: 43 74% 52%;
+    /* Updated semantic colors using MELNET palette */
+    --success: 25 90% 55%;
     --success-foreground: 0 0% 100%;
-    --warning: 43 74% 65%;
+    --warning: 35 90% 60%;
     --warning-foreground: 0 0% 0%;
-    --info: 226 81% 25%;
+    --info: 215 60% 25%;
     --info-foreground: 0 0% 100%;
     
-    /* Metric specific colors updated to brand palette */
-    --participation: 226 81% 25%;
-    --learning: 226 81% 25%;
-    --activity: 43 74% 52%;
-    --networking: 43 74% 65%;
-    --trade: 210 100% 20%;
+    /* Metric specific colors updated to MELNET palette */
+    --participation: 215 60% 25%;
+    --learning: 220 55% 30%;
+    --activity: 25 90% 55%;
+    --networking: 25 85% 65%;
+    --trade: 215 60% 35%;
 
-    /* Gradients */
-    --gradient-navy: linear-gradient(135deg, hsl(210 100% 20%), hsl(226 81% 25%));
-    --gradient-golden: linear-gradient(135deg, hsl(43 74% 52%), hsl(43 74% 65%));
+    /* MELNET Gradients */
+    --gradient-navy: linear-gradient(135deg, hsl(215 60% 25%), hsl(220 55% 30%));
+    --gradient-golden: linear-gradient(135deg, hsl(25 90% 55%), hsl(25 85% 65%));
 
     --radius: 0.5rem;
 
@@ -87,60 +87,60 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Dark mode with brand colors */
-    --background: 210 100% 20%;
+    /* Dark mode with MELNET brand colors */
+    --background: 215 60% 15%;
     --foreground: 0 0% 100%;
 
-    --card: 226 81% 25%;
+    --card: 215 55% 20%;
     --card-foreground: 0 0% 100%;
 
-    --popover: 226 81% 25%;
+    --popover: 215 55% 20%;
     --popover-foreground: 0 0% 100%;
 
-    /* Golden Yellow Primary (same in dark) */
-    --primary: 43 74% 52%;
+    /* MELNET Orange Primary (same in dark) */
+    --primary: 25 90% 55%;
     --primary-foreground: 0 0% 0%;
 
-    /* Darker Navy Blue Secondary */
-    --secondary: 226 81% 25%;
+    /* MELNET Navy Blue Secondary */
+    --secondary: 215 55% 20%;
     --secondary-foreground: 0 0% 100%;
 
     /* Dark muted */
-    --muted: 226 81% 15%;
+    --muted: 215 40% 12%;
     --muted-foreground: 0 0% 70%;
 
-    /* Golden Yellow Accent */
-    --accent: 43 74% 52%;
+    /* MELNET Orange Accent */
+    --accent: 25 90% 55%;
     --accent-foreground: 0 0% 0%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 226 81% 15%;
-    --input: 226 81% 15%;
-    --ring: 43 74% 52%;
+    --border: 215 40% 25%;
+    --input: 215 40% 12%;
+    --ring: 25 90% 55%;
 
     /* Brand specific colors - dark mode */
-    --golden-yellow: 43 74% 52%;
-    --navy-blue: 210 100% 20%;
-    --navy-blue-end: 226 81% 25%;
+    --golden-yellow: 25 90% 55%;
+    --navy-blue: 215 60% 25%;
+    --navy-blue-end: 220 55% 30%;
     --light-gray-overlay: 0 0% 20%;
-    --orange-tint: 43 74% 65%;
+    --orange-tint: 25 85% 65%;
     
     /* Updated semantic colors - dark mode */
-    --success: 43 74% 52%;
+    --success: 25 90% 55%;
     --success-foreground: 0 0% 0%;
-    --warning: 43 74% 65%;
+    --warning: 35 90% 60%;
     --warning-foreground: 0 0% 0%;
-    --info: 226 81% 25%;
+    --info: 215 55% 20%;
     --info-foreground: 0 0% 100%;
     
     /* Metric specific colors - dark mode */
-    --participation: 226 81% 35%;
-    --learning: 226 81% 35%;
-    --activity: 43 74% 52%;
-    --networking: 43 74% 65%;
-    --trade: 210 100% 30%;
+    --participation: 215 60% 40%;
+    --learning: 220 55% 45%;
+    --activity: 25 90% 55%;
+    --networking: 25 85% 65%;
+    --trade: 215 60% 45%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
