@@ -98,6 +98,20 @@ export const chapterLeaderService = {
       const startOfLastMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
       const endOfLastMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 0);
 
+      // Get member counts for growth calculation
+      const { count: currentMonthMembers } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('chapter_id', chapterId)
+        .gte('created_at', startOfMonth.toISOString());
+
+      const { count: lastMonthMembers } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('chapter_id', chapterId)
+        .gte('created_at', startOfLastMonth.toISOString())
+        .lte('created_at', endOfLastMonth.toISOString());
+
       const { data: currentMetrics } = await supabase
         .from('metrics')
         .select('metric_type, value')
@@ -143,7 +157,7 @@ export const chapterLeaderService = {
         totalLearningHours: currentTotals.learning,
         totalRevenue: currentRevenue,
         monthlyGrowth: {
-          members: 0, // Would need to calculate member growth
+          members: (currentMonthMembers || 0) - (lastMonthMembers || 0),
           participation: currentTotals.participation - lastMonthTotals.participation,
           learningHours: currentTotals.learning - lastMonthTotals.learning,
           revenue: currentRevenue - lastMonthRevenue
