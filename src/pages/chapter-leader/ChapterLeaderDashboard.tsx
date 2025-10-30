@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Users, 
   GraduationCap, 
@@ -30,6 +31,8 @@ const ChapterLeaderDashboard = () => {
   const { toast } = useToast();
   const [stats, setStats] = useState<ChapterStats | null>(null);
   const [activities, setActivities] = useState<ChapterActivity[]>([]);
+  const [chapterName, setChapterName] = useState<string>('');
+  const [pendingActions, setPendingActions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,9 +41,11 @@ const ChapterLeaderDashboard = () => {
 
       setLoading(true);
       try {
-        const [statsResult, activitiesResult] = await Promise.all([
+        const [statsResult, activitiesResult, chapterNameResult, pendingActionsResult] = await Promise.all([
           chapterLeaderService.getChapterStats(profile.chapter_id),
-          chapterLeaderService.getChapterActivity(profile.chapter_id, 10)
+          chapterLeaderService.getChapterActivity(profile.chapter_id, 10),
+          chapterLeaderService.getChapterName(profile.chapter_id),
+          chapterLeaderService.getPendingActions(profile.chapter_id)
         ]);
 
         if (statsResult.error) {
@@ -59,6 +64,18 @@ const ChapterLeaderDashboard = () => {
         } else {
           setActivities(activitiesResult.data || []);
         }
+
+        if (chapterNameResult.error) {
+          console.error('Error fetching chapter name:', chapterNameResult.error);
+        } else {
+          setChapterName(chapterNameResult.data || '');
+        }
+
+        if (pendingActionsResult.error) {
+          console.error('Error fetching pending actions:', pendingActionsResult.error);
+        } else {
+          setPendingActions(pendingActionsResult.data || []);
+        }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
         toast({
@@ -72,6 +89,46 @@ const ChapterLeaderDashboard = () => {
     };
 
     fetchDashboardData();
+
+    // Set up realtime subscriptions for live updates
+    if (!profile?.chapter_id) return;
+
+    const metricsChannel = supabase
+      .channel('chapter-metrics-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'metrics',
+          filter: `chapter_id=eq.${profile.chapter_id}`
+        },
+        () => {
+          fetchDashboardData();
+        }
+      )
+      .subscribe();
+
+    const tradesChannel = supabase
+      .channel('chapter-trades-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'trades',
+          filter: `chapter_id=eq.${profile.chapter_id}`
+        },
+        () => {
+          fetchDashboardData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(metricsChannel);
+      supabase.removeChannel(tradesChannel);
+    };
   }, [profile?.chapter_id, toast]);
 
   const formatCurrency = (amount: number) => {
@@ -168,11 +225,6 @@ const ChapterLeaderDashboard = () => {
     }
   ];
 
-  const pendingActions = [
-    { type: 'Members', description: 'Check inactive members', priority: 'medium' },
-    { type: 'Reports', description: 'Monthly chapter report due', priority: 'high' },
-    { type: 'Trades', description: 'Review pending trade declarations', priority: 'medium' },
-  ];
 
   return (
     <ChapterLeaderLayout>
@@ -182,8 +234,13 @@ const ChapterLeaderDashboard = () => {
           <div>
             <h2 className="text-2xl font-bold">Chapter Leader Dashboard</h2>
             <p className="text-muted-foreground">
-              {profile?.business_name || 'Chapter'} - Overview and Management
+              {chapterName || 'Chapter'} - Overview and Management
             </p>
+            {chapterName && (
+              <Badge variant="outline" className="mt-1">
+                {chapterName}
+              </Badge>
+            )}
           </div>
           <div className="flex gap-2">
             <Link to="/chapter-leader/notifications">
@@ -284,7 +341,7 @@ const ChapterLeaderDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {pendingActions.map((action, index) => (
+                {pendingActions.length > 0 ? pendingActions.map((action, index) => (
                   <div key={index} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className={`w-2 h-2 rounded-full ${
@@ -306,7 +363,9 @@ const ChapterLeaderDashboard = () => {
                       </Button>
                     </Link>
                   </div>
-                ))}
+                )) : (
+                  <p className="text-sm text-muted-foreground">No pending actions at this time</p>
+                )}
               </div>
             </CardContent>
           </Card>
