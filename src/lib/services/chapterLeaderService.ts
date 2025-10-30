@@ -69,11 +69,6 @@ export interface ChapterActivity {
 }
 
 export const chapterLeaderService = {
-<<<<<<< HEAD
-  async getChapterStats(
-    chapterId: string
-  ): Promise<{ data: ChapterStats | null; error: any }> {
-=======
   async getChapterName(chapterId: string): Promise<{ data: string | null; error: any }> {
     try {
       const { data, error } = await supabase
@@ -90,7 +85,6 @@ export const chapterLeaderService = {
   },
 
   async getChapterStats(chapterId: string): Promise<{ data: ChapterStats | null; error: any }> {
->>>>>>> aca7e4f11c3b5533287b9bc1f92852a616b7a722
     try {
       // Get total members
       const { count: totalMembers } = await supabase
@@ -180,14 +174,8 @@ export const chapterLeaderService = {
         totalLearningHours: currentTotals.learning,
         totalRevenue: currentRevenue,
         monthlyGrowth: {
-<<<<<<< HEAD
-          members: 0, // Would need to calculate member growth
-          participation:
-            currentTotals.participation - lastMonthTotals.participation,
-=======
           members: (currentMonthMembers || 0) - (lastMonthMembers || 0),
           participation: currentTotals.participation - lastMonthTotals.participation,
->>>>>>> aca7e4f11c3b5533287b9bc1f92852a616b7a722
           learningHours: currentTotals.learning - lastMonthTotals.learning,
           revenue: currentRevenue - lastMonthRevenue,
         },
@@ -494,19 +482,8 @@ export const chapterLeaderService = {
     userId: string
   ): Promise<{ success: boolean; error?: any }> {
     try {
-<<<<<<< HEAD
-      // This would resend an invitation email to the user
-      console.log(`Resending invite to user ${userId}`);
-
-      // In a real implementation, this would call an edge function to resend invites
-      const { error } = await supabase.functions.invoke("resend-invite", {
-        body: {
-          userId,
-        },
-=======
       const { data, error } = await supabase.functions.invoke('resend-invite', {
         body: { userId }
->>>>>>> aca7e4f11c3b5533287b9bc1f92852a616b7a722
       });
 
       if (error) throw error;
