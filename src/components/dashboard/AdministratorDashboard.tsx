@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/lib/auth';
-import AppLayout from '@/components/layout/AppLayout';
-import AdminNavigation from '@/components/admin/AdminNavigation';
+import AdminLayout from '@/components/admin/AdminLayout';
 import AdminDashboardOverview from '@/components/admin/AdminDashboardOverview';
 import UserManagement from '@/components/admin/UserManagement';
 import ChapterManagement from '@/components/admin/ChapterManagement';
@@ -36,12 +35,11 @@ const AdministratorDashboard = () => {
   };
 
   return (
-    <AppLayout>
-      <div className="p-4 md:p-6 space-y-6">
-        <AdminNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+    <AdminLayout activeSection={activeTab} onNavigate={setActiveTab}>
+      <div className="p-4 md:p-6">
         {renderContent()}
       </div>
-    </AppLayout>
+    </AdminLayout>
   );
 };
 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth';
-import AppLayout from '@/components/layout/AppLayout';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import MemberLayout from '@/components/member/MemberLayout';
 import ProfileManagement from '@/components/member/ProfileManagement';
 import MetricsInput from '@/components/member/MetricsInput';
 import MetricsChart from '@/components/member/MetricsChart';
@@ -15,6 +14,7 @@ import { tradesService, TradeWithProfiles } from '@/lib/services/tradesService';
 
 const MemberDashboard = () => {
   const { profile } = useAuth();
+  const [activeSection, setActiveSection] = useState('overview');
   const [metrics, setMetrics] = useState<MetricEntry[]>([]);
   const [trades, setTrades] = useState<TradeWithProfiles[]>([]);
   const [summary, setSummary] = useState<MetricsSummary>({
@@ -51,27 +51,17 @@ const MemberDashboard = () => {
     loadData();
   }, [profile]);
 
-  return (
-    <AppLayout>
-      <div className="p-4 md:p-6">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold">Welcome back, {profile?.full_name}!</h2>
-          <p className="text-muted-foreground">
-            Manage your PLANT metrics, trades, and business networking activities
-          </p>
-        </div>
-
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="metrics">Metrics</TabsTrigger>
-            <TabsTrigger value="trades">Trades</TabsTrigger>
-            <TabsTrigger value="leaderboard">Rankings</TabsTrigger>
-            <TabsTrigger value="reports">Reports</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-6">
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'overview':
+        return (
+          <div className="space-y-6">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold">Welcome back, {profile?.full_name}!</h2>
+              <p className="text-muted-foreground">
+                Manage your PLANT metrics, trades, and business networking activities
+              </p>
+            </div>
             <MetricsChart 
               metrics={metrics} 
               chartType={chartType} 
@@ -85,13 +75,13 @@ const MemberDashboard = () => {
                 isLoading={loading} 
               />
             </div>
-          </TabsContent>
-
-          <TabsContent value="profile">
-            <ProfileManagement onUpdate={loadData} />
-          </TabsContent>
-
-          <TabsContent value="metrics" className="space-y-6">
+          </div>
+        );
+      case 'profile':
+        return <ProfileManagement onUpdate={loadData} />;
+      case 'metrics':
+        return (
+          <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <MetricsInput onMetricAdded={loadData} />
               <div className="space-y-6">
@@ -103,31 +93,46 @@ const MemberDashboard = () => {
               </div>
             </div>
             <MetricsHistory metrics={metrics} isLoading={loading} />
-          </TabsContent>
-
-          <TabsContent value="trades" className="space-y-6">
+          </div>
+        );
+      case 'trades':
+        return (
+          <div className="space-y-6">
             <TradeDeclaration onTradeAdded={loadData} />
             <TradesPanel trades={trades} isLoading={loading} />
-          </TabsContent>
+          </div>
+        );
+      case 'leaderboard':
+        return (
+          <Leaderboard 
+            data={leaderboard} 
+            currentUserId={profile?.id || ''} 
+            isLoading={loading} 
+          />
+        );
+      case 'reports':
+        return (
+          <ReportsPanel 
+            metrics={metrics}
+            trades={trades}
+            summary={summary}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
-          <TabsContent value="leaderboard">
-            <Leaderboard 
-              data={leaderboard} 
-              currentUserId={profile?.id || ''} 
-              isLoading={loading} 
-            />
-          </TabsContent>
-
-          <TabsContent value="reports">
-            <ReportsPanel 
-              metrics={metrics}
-              trades={trades}
-              summary={summary}
-            />
-          </TabsContent>
-        </Tabs>
+  return (
+    <MemberLayout 
+      activeSection={activeSection} 
+      onNavigate={setActiveSection}
+      summary={summary}
+    >
+      <div className="p-4 md:p-6">
+        {renderContent()}
       </div>
-    </AppLayout>
+    </MemberLayout>
   );
 };
 
