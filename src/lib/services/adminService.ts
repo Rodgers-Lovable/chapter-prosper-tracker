@@ -85,15 +85,15 @@ export interface TradeWithDetails {
   }>;
 }
 
-export interface UserDataInterface  {
-    email: string;
-    full_name?: string;
-    role: "member" | "chapter_leader" | "administrator";
-    chapter_id?: string;
-    business_name?: string;
-    business_description?: string;
-    phone?: string;
-  }
+export interface UserDataInterface {
+  email: string;
+  full_name?: string;
+  role: "member" | "chapter_leader" | "administrator";
+  chapter_id?: string;
+  business_name?: string;
+  business_description?: string;
+  phone?: string;
+}
 
 export const adminService = {
   // Get system-wide metrics

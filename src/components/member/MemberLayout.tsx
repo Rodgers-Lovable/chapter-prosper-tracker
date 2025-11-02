@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/lib/auth';
-import { Navigate, useLocation, Link } from 'react-router-dom';
-import AppLayout from '@/components/layout/AppLayout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "@/lib/auth";
+import { Navigate, useLocation, Link } from "react-router-dom";
+import AppLayout from "@/components/layout/AppLayout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard,
   User,
@@ -14,8 +14,10 @@ import {
   DollarSign,
   Trophy,
   FileText,
-  Building2
-} from 'lucide-react';
+  Building2,
+} from "lucide-react";
+import { Chapter, chapterService } from "@/lib/services/chapterService";
+import { toast } from "@/hooks/use-toast";
 
 interface MemberLayoutProps {
   children: React.ReactNode;
@@ -78,25 +80,23 @@ const MemberLayout: React.FC<MemberLayoutProps> = ({
   const { profile, loading } = useAuth();
 
   const location = useLocation();
-  const [chapterName, setChapterName] = useState<string>('');
+  const [chapter, setChapter] = useState<any>();
 
   useEffect(() => {
-    const fetchChapterName = async () => {
-      if (profile?.chapter_id) {
-        const { data, error } = await supabase
-          .from('chapters')
-          .select('name')
-          .eq('id', profile.chapter_id)
-          .single();
-        
-        if (data && !error) {
-          setChapterName(data.name);
-        }
-      }
-    };
-
-    fetchChapterName();
+    fetchChapterInfo();
   }, [profile?.chapter_id]);
+
+  const fetchChapterInfo = async () => {
+    if (profile?.chapter_id) {
+      const { data, error } = await chapterService.getChapterById(
+        profile.chapter_id
+      );
+
+      if (!error && data) {
+        setChapter(data);
+      }
+    }
+  };
 
   if (loading) {
     return (
@@ -126,19 +126,22 @@ const MemberLayout: React.FC<MemberLayoutProps> = ({
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
               <User className="h-5 w-5 text-primary" />
-              <h2 className="font-semibold">
-                {profile.full_name} Member Portal
-              </h2>
+              <h2 className="font-semibold">{profile.full_name}</h2>
             </div>
-            <Badge variant="secondary" className="text-xs mb-2">
-              {profile.business_name || profile.full_name}
-            </Badge>
-            {chapterName && (
+            {chapter && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
-                <Building2 className="h-4 w-4" />
-                <span>{chapterName}</span>
+                <Badge
+                  variant="secondary"
+                  className="text-xs mb-2 flex items-center gap-2"
+                >
+                  <Building2 className="h-4 w-4" />
+                  {chapter.name}
+                </Badge>
               </div>
             )}
+            <Badge variant="secondary" className="text-xs mb-2">
+              {profile.business_name || ""}
+            </Badge>
           </div>
 
           <nav className="space-y-2">
