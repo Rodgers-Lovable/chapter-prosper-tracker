@@ -1,24 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { DollarSign, Users } from 'lucide-react';
-import { useAuth } from '@/lib/auth';
-import { tradesService } from '@/lib/services/tradesService';
-import { toast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { DollarSign, Users } from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import { tradesService } from "@/lib/services/tradesService";
+import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const tradeSchema = z.object({
-  amount: z.number().min(1, 'Amount must be greater than 0'),
-  description: z.string().min(5, 'Description must be at least 5 characters'),
+  amount: z.number().min(1, "Amount must be greater than 0"),
+  description: z.string().min(5, "Description must be at least 5 characters"),
   source_member_id: z.string().optional(),
-  beneficiary_member_id: z.string().optional()
+  beneficiary_member_id: z.string().optional(),
 });
 
 type TradeFormData = z.infer<typeof tradeSchema>;
@@ -27,7 +46,9 @@ interface TradeDeclarationProps {
   onTradeAdded?: () => void;
 }
 
-const TradeDeclaration: React.FC<TradeDeclarationProps> = ({ onTradeAdded }) => {
+const TradeDeclaration: React.FC<TradeDeclarationProps> = ({
+  onTradeAdded,
+}) => {
   const { profile } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [chapterMembers, setChapterMembers] = useState<any[]>([]);
@@ -36,46 +57,53 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({ onTradeAdded }) => 
     resolver: zodResolver(tradeSchema),
     defaultValues: {
       amount: 0,
-      description: '',
-      source_member_id: '',
-      beneficiary_member_id: ''
-    }
+      description: "",
+      source_member_id: "",
+      beneficiary_member_id: "",
+    },
   });
 
   useEffect(() => {
-    const loadChapterMembers = async () => {
-      if (!profile?.chapter_id) return;
-
-      const { data, error } = await tradesService.getChapterMembers(profile.chapter_id);
-      if (!error && data) {
-        // Filter out current user
-        const otherMembers = data.filter(member => member.id !== profile.id);
-        setChapterMembers(otherMembers);
-      }
-    };
-
     loadChapterMembers();
   }, [profile]);
 
+  const loadChapterMembers = async () => {
+    if (!profile?.chapter_id) return;
+
+    const { data, error } = await tradesService.getChapterMembers(
+      profile.chapter_id
+    );
+
+    if (!error && data) {
+      // Filter out current user
+      const otherMembers = data.filter((member) => member.id !== profile.id);
+      console.log(otherMembers);
+      setChapterMembers(otherMembers);
+    }
+  };
+
   const initiatePayment = async (tradeId: string) => {
     try {
-      const { data, error } = await supabase.functions.invoke('process-payment', {
-        body: {
-          tradeId,
-          phoneNumber: profile?.phone || '',
-          amount: form.getValues('amount')
+      const { data, error } = await supabase.functions.invoke(
+        "process-payment",
+        {
+          body: {
+            tradeId,
+            phoneNumber: profile?.phone || "",
+            amount: form.getValues("amount"),
+          },
         }
-      });
+      );
 
       if (error) {
-        console.error('Payment initiation error:', error);
+        console.error("Payment initiation error:", error);
         // If MPESA fails, generate invoice
         await generateInvoice(tradeId);
       } else {
-        console.log('Payment initiated successfully:', data);
+        console.log("Payment initiated successfully:", data);
       }
     } catch (error) {
-      console.error('Payment initiation failed:', error);
+      console.error("Payment initiation failed:", error);
       // Fallback to invoice generation
       await generateInvoice(tradeId);
     }
@@ -83,21 +111,25 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({ onTradeAdded }) => 
 
   const generateInvoice = async (tradeId: string) => {
     try {
-      const { data, error } = await supabase.functions.invoke('generate-invoice', {
-        body: { tradeId }
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "generate-invoice",
+        {
+          body: { tradeId },
+        }
+      );
 
       if (error) {
-        console.error('Invoice generation error:', error);
+        console.error("Invoice generation error:", error);
       } else {
-        console.log('Invoice generated successfully:', data);
+        console.log("Invoice generated successfully:", data);
         toast({
           title: "Invoice Generated",
-          description: "An invoice has been sent to your email. Please complete payment within 30 days."
+          description:
+            "An invoice has been sent to your email. Please complete payment within 30 days.",
         });
       }
     } catch (error) {
-      console.error('Invoice generation failed:', error);
+      console.error("Invoice generation failed:", error);
     }
   };
 
@@ -106,7 +138,8 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({ onTradeAdded }) => 
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Profile information is missing. Please refresh and try again."
+        description:
+          "Profile information is missing. Please refresh and try again.",
       });
       return;
     }
@@ -118,43 +151,49 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({ onTradeAdded }) => 
         chapter_id: profile.chapter_id,
         amount: data.amount,
         description: data.description,
-        source_member_id: data.source_member_id && data.source_member_id !== 'none' ? data.source_member_id : null,
-        beneficiary_member_id: data.beneficiary_member_id && data.beneficiary_member_id !== 'none' ? data.beneficiary_member_id : null,
-        status: 'pending'
+        source_member_id:
+          data.source_member_id && data.source_member_id !== "none"
+            ? data.source_member_id
+            : null,
+        beneficiary_member_id:
+          data.beneficiary_member_id && data.beneficiary_member_id !== "none"
+            ? data.beneficiary_member_id
+            : null,
+        status: "pending",
       });
 
       if (error) {
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Failed to declare trade. Please try again."
+          description: "Failed to declare trade. Please try again.",
         });
         return;
       }
 
       form.reset({
         amount: 0,
-        description: '',
-        source_member_id: '',
-        beneficiary_member_id: ''
+        description: "",
+        source_member_id: "",
+        beneficiary_member_id: "",
       });
 
       onTradeAdded?.();
       toast({
         title: "Success",
-        description: "Trade declared successfully! Payment processing will begin shortly."
+        description:
+          "Trade declared successfully! Payment processing will begin shortly.",
       });
 
       // Trigger payment processing
       if (createdTrade) {
         await initiatePayment(createdTrade.id);
       }
-      
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "An unexpected error occurred."
+        description: "An unexpected error occurred.",
       });
     } finally {
       setIsLoading(false);
@@ -191,7 +230,9 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({ onTradeAdded }) => 
                         placeholder="Enter amount in KES"
                         className="pl-10"
                         {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        onChange={(e) =>
+                          field.onChange(parseFloat(e.target.value) || 0)
+                        }
                       />
                     </div>
                   </FormControl>
@@ -225,7 +266,12 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({ onTradeAdded }) => 
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Source Member (Optional)</FormLabel>
-                    <Select onValueChange={(val) => field.onChange(val === 'none' ? '' : val)} defaultValue={field.value}>
+                    <Select
+                      onValueChange={(val) =>
+                        field.onChange(val === "none" ? "" : val)
+                      }
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select source member" />
@@ -238,9 +284,13 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({ onTradeAdded }) => 
                             <div className="flex items-center gap-2">
                               <Users className="h-4 w-4" />
                               <div>
-                                <div className="font-medium">{member.full_name}</div>
+                                <div className="font-medium">
+                                  {member.full_name}
+                                </div>
                                 {member.business_name && (
-                                  <div className="text-xs text-muted-foreground">{member.business_name}</div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {member.business_name}
+                                  </div>
                                 )}
                               </div>
                             </div>
@@ -259,7 +309,12 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({ onTradeAdded }) => 
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Beneficiary Member (Optional)</FormLabel>
-                    <Select onValueChange={(val) => field.onChange(val === 'none' ? '' : val)} defaultValue={field.value}>
+                    <Select
+                      onValueChange={(val) =>
+                        field.onChange(val === "none" ? "" : val)
+                      }
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select beneficiary" />
@@ -272,9 +327,13 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({ onTradeAdded }) => 
                             <div className="flex items-center gap-2">
                               <Users className="h-4 w-4" />
                               <div>
-                                <div className="font-medium">{member.full_name}</div>
+                                <div className="font-medium">
+                                  {member.full_name}
+                                </div>
                                 {member.business_name && (
-                                  <div className="text-xs text-muted-foreground">{member.business_name}</div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {member.business_name}
+                                  </div>
                                 )}
                               </div>
                             </div>
@@ -291,13 +350,16 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({ onTradeAdded }) => 
             <div className="bg-muted/50 p-4 rounded-lg space-y-2">
               <h4 className="font-medium">Payment Process</h4>
               <p className="text-sm text-muted-foreground">
-                After declaring this trade, you will receive an MPESA STK push to complete payment. 
-                If payment is not completed within 5 minutes, an invoice will be generated and sent to your email.
+                After declaring this trade, you will receive an MPESA STK push
+                to complete payment. If payment is not completed within 5
+                minutes, an invoice will be generated and sent to your email.
               </p>
             </div>
 
             <Button type="submit" disabled={isLoading} className="w-full">
-              {isLoading ? 'Declaring Trade...' : 'Declare Trade & Initiate Payment'}
+              {isLoading
+                ? "Declaring Trade..."
+                : "Declare Trade & Initiate Payment"}
             </Button>
           </form>
         </Form>

@@ -1,19 +1,19 @@
-import React from 'react';
-import { useAuth } from '@/lib/auth';
-import { Navigate, useLocation, Link } from 'react-router-dom';
-import AppLayout from '@/components/layout/AppLayout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import React, { useState } from "react";
+import { useAuth } from "@/lib/auth";
+import { Navigate, useLocation, Link } from "react-router-dom";
+import AppLayout from "@/components/layout/AppLayout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   User,
   BarChart3,
   DollarSign,
   Trophy,
-  FileText
-} from 'lucide-react';
+  FileText,
+} from "lucide-react";
 
 interface MemberLayoutProps {
   children: React.ReactNode;
@@ -30,62 +30,71 @@ interface MemberLayoutProps {
 
 const navigationItems = [
   {
-    id: 'overview',
-    name: 'Overview',
+    id: "overview",
+    name: "Overview",
     icon: LayoutDashboard,
-    description: 'Dashboard and quick stats'
+    description: "Dashboard and quick stats",
   },
   {
-    id: 'profile',
-    name: 'Profile',
+    id: "profile",
+    name: "Profile",
     icon: User,
-    description: 'Manage your profile'
+    description: "Manage your profile",
   },
   {
-    id: 'metrics',
-    name: 'Metrics',
+    id: "metrics",
+    name: "Metrics",
     icon: BarChart3,
-    description: 'Track PLANT metrics'
+    description: "Track PLANT metrics",
   },
   {
-    id: 'trades',
-    name: 'Trades',
+    id: "trades",
+    name: "Trades",
     icon: DollarSign,
-    description: 'Declare and view trades'
+    description: "Declare and view trades",
   },
   {
-    id: 'leaderboard',
-    name: 'Rankings',
+    id: "leaderboard",
+    name: "Rankings",
     icon: Trophy,
-    description: 'Chapter leaderboard'
+    description: "Chapter leaderboard",
   },
   {
-    id: 'reports',
-    name: 'Reports',
+    id: "reports",
+    name: "Reports",
     icon: FileText,
-    description: 'Generate reports'
-  }
+    description: "Generate reports",
+  },
 ];
 
-const MemberLayout: React.FC<MemberLayoutProps> = ({ 
-  children, 
-  activeSection = 'overview', 
+const MemberLayout: React.FC<MemberLayoutProps> = ({
+  children,
+  activeSection = "overview",
   onNavigate,
-  summary 
+  summary,
 }) => {
   const { profile, loading } = useAuth();
+
   const location = useLocation();
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Loading...
+      </div>
+    );
   }
 
   if (!profile) {
     return <Navigate to="/auth" replace />;
   }
 
-  const totalScore = summary ? 
-    summary.participation + summary.learning + summary.activity + summary.networking + summary.trade 
+  const totalScore = summary
+    ? summary.participation +
+      summary.learning +
+      summary.activity +
+      summary.networking +
+      summary.trade
     : 0;
 
   return (
@@ -96,10 +105,12 @@ const MemberLayout: React.FC<MemberLayoutProps> = ({
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
               <User className="h-5 w-5 text-primary" />
-              <h2 className="font-semibold">Member Portal</h2>
+              <h2 className="font-semibold">
+                {profile.full_name} Member Portal
+              </h2>
             </div>
             <Badge variant="secondary" className="text-xs">
-              {profile.business_name || profile.full_name}
+              {profile.business_name || ""}
             </Badge>
           </div>
 
@@ -107,7 +118,7 @@ const MemberLayout: React.FC<MemberLayoutProps> = ({
             {navigationItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeSection === item.id;
-              
+
               return (
                 <Button
                   key={item.id}
@@ -121,10 +132,14 @@ const MemberLayout: React.FC<MemberLayoutProps> = ({
                   <Icon className="mr-3 h-4 w-4" />
                   <div className="text-left">
                     <div className="font-medium">{item.name}</div>
-                    <div className={cn(
-                      "text-xs",
-                      isActive ? "text-primary-foreground/70" : "text-muted-foreground"
-                    )}>
+                    <div
+                      className={cn(
+                        "text-xs",
+                        isActive
+                          ? "text-primary-foreground/70"
+                          : "text-muted-foreground"
+                      )}
+                    >
                       {item.description}
                     </div>
                   </div>
@@ -140,13 +155,19 @@ const MemberLayout: React.FC<MemberLayoutProps> = ({
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Total:</span>
-                  <span className="font-bold text-lg text-primary">{totalScore}</span>
+                  <span className="font-bold text-lg text-primary">
+                    {totalScore}
+                  </span>
                 </div>
                 {summary && (
                   <>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Participation:</span>
-                      <span className="font-medium">{summary.participation}</span>
+                      <span className="text-muted-foreground">
+                        Participation:
+                      </span>
+                      <span className="font-medium">
+                        {summary.participation}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Learning:</span>
@@ -164,9 +185,7 @@ const MemberLayout: React.FC<MemberLayoutProps> = ({
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-auto">
-          {children}
-        </main>
+        <main className="flex-1 overflow-auto">{children}</main>
       </div>
     </AppLayout>
   );
