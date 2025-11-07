@@ -1,11 +1,31 @@
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { DollarSign, FileText, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
-import { TradeWithProfiles } from '@/lib/services/tradesService';
-import { format } from 'date-fns';
+import React from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DollarSign,
+  FileText,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+} from "lucide-react";
+import { TradeWithProfiles } from "@/lib/services/tradesService";
+import { format } from "date-fns";
 
 interface TradesPanelProps {
   trades: TradeWithProfiles[];
@@ -14,39 +34,41 @@ interface TradesPanelProps {
   onRetryPayment?: (tradeId: string) => void;
 }
 
-const TradesPanel: React.FC<TradesPanelProps> = ({ 
-  trades, 
-  isLoading, 
-  onViewInvoice, 
-  onRetryPayment 
+const TradesPanel: React.FC<TradesPanelProps> = ({
+  trades,
+  isLoading,
+  onViewInvoice,
+  onRetryPayment,
 }) => {
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'paid':
+      case "paid":
         return <CheckCircle className="h-4 w-4 text-success" />;
-      case 'pending':
+      case "pending":
         return <Clock className="h-4 w-4 text-warning" />;
-      case 'invoiced':
+      case "invoiced":
         return <FileText className="h-4 w-4 text-info" />;
-      case 'cancelled':
+      case "cancelled":
         return <XCircle className="h-4 w-4 text-destructive" />;
       default:
         return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
-  const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
+  const getStatusVariant = (
+    status: string
+  ): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
-      case 'paid':
-        return 'default';
-      case 'pending':
-        return 'secondary';
-      case 'invoiced':
-        return 'outline';
-      case 'cancelled':
-        return 'destructive';
+      case "paid":
+        return "default";
+      case "pending":
+        return "secondary";
+      case "invoiced":
+        return "outline";
+      case "cancelled":
+        return "destructive";
       default:
-        return 'outline';
+        return "outline";
     }
   };
 
@@ -62,7 +84,7 @@ const TradesPanel: React.FC<TradesPanelProps> = ({
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="h-16 bg-muted/50 rounded animate-pulse" />
             ))}
           </div>
@@ -105,23 +127,24 @@ const TradesPanel: React.FC<TradesPanelProps> = ({
                 {trades.map((trade) => (
                   <TableRow key={trade.id}>
                     <TableCell>
-                      {format(new Date(trade.created_at || ''), 'MMM dd, yyyy')}
+                      {format(new Date(trade.created_at || ""), "MMM dd, yyyy")}
                     </TableCell>
                     <TableCell className="font-mono">
                       KES {trade.amount.toLocaleString()}
                     </TableCell>
                     <TableCell>
-                      <Badge 
-                        variant={getStatusVariant(trade.status)} 
+                      <Badge
+                        variant={getStatusVariant(trade.status)}
                         className="flex items-center gap-1 w-fit"
                       >
                         {getStatusIcon(trade.status)}
-                        {trade.status.charAt(0).toUpperCase() + trade.status.slice(1)}
+                        {trade.status.charAt(0).toUpperCase() +
+                          trade.status.slice(1)}
                       </Badge>
                     </TableCell>
                     <TableCell className="max-w-xs">
                       <div className="truncate" title={trade.description}>
-                        {trade.description || 'No description'}
+                        {trade.description || "No description"}
                       </div>
                       {trade.source_member && (
                         <div className="text-xs text-muted-foreground">
@@ -136,7 +159,7 @@ const TradesPanel: React.FC<TradesPanelProps> = ({
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        {trade.status === 'invoiced' && (
+                        {trade.status === "invoiced" && (
                           <Button
                             size="sm"
                             variant="outline"
@@ -146,7 +169,7 @@ const TradesPanel: React.FC<TradesPanelProps> = ({
                             Invoice
                           </Button>
                         )}
-                        {trade.status === 'pending' && (
+                        {trade.status === "pending" && (
                           <Button
                             size="sm"
                             variant="outline"

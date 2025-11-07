@@ -1,9 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.4';
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.4";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
 interface PaymentRequest {
@@ -21,91 +22,113 @@ interface MPESASTKResponse {
 
 serve(async (req) => {
   // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
     const { tradeId, phoneNumber, amount }: PaymentRequest = await req.json();
 
-    console.log('Processing payment for trade:', tradeId, 'Amount:', amount);
+    console.log("Processing payment for trade:", tradeId, "Amount:", amount);
 
     // First, verify the trade exists and is pending
     const { data: trade, error: tradeError } = await supabaseClient
-      .from('trades')
-      .select('*')
-      .eq('id', tradeId)
-      .eq('status', 'pending')
+      .from("trades")
+      .select("*")
+      .eq("id", tradeId)
+      .eq("status", "pending")
       .single();
 
     if (tradeError || !trade) {
-      throw new Error('Trade not found or not in pending status');
+      throw new Error("Trade not found or not in pending status");
     }
 
     // In a real implementation, this would call the MPESA API
     // For now, we simulate the STK push request
     const mpesaResponse = await simulateMPESASTKPush(phoneNumber, amount);
-    
-    if (mpesaResponse.ResponseCode === '0') {
+
+    if (mpesaResponse.ResponseCode === "0") {
       // Update trade with MPESA reference
       const { error: updateError } = await supabaseClient
-        .from('trades')
-        .update({ 
+        .from("trades")
+        .update({
           mpesa_reference: mpesaResponse.CheckoutRequestID,
-          status: 'invoiced', // Will be updated to 'paid' when callback confirms payment
-          updated_at: new Date().toISOString()
+          status: "invoiced", // Will be updated to 'paid' when callback confirms payment
+          updated_at: new Date().toISOString(),
         })
-        .eq('id', tradeId);
+        .eq("id", tradeId);
 
       if (updateError) {
         throw updateError;
       }
 
       // Log the payment initiation
-      console.log('MPESA STK Push initiated successfully:', mpesaResponse.CheckoutRequestID);
+      console.log(
+        "MPESA STK Push initiated successfully:",
+        mpesaResponse.CheckoutRequestID
+      );
 
-      return new Response(JSON.stringify({
-        success: true,
-        message: 'MPESA STK Push sent successfully',
-        checkoutRequestId: mpesaResponse.CheckoutRequestID
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: "MPESA STK Push sent successfully",
+          checkoutRequestId: mpesaResponse.CheckoutRequestID,
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     } else {
-      throw new Error(`MPESA request failed: ${mpesaResponse.ResponseDescription}`);
+      throw new Error(
+        `MPESA request failed: ${mpesaResponse.ResponseDescription}`
+      );
     }
-
   } catch (error) {
-    console.error('Error processing payment:', error);
-    return new Response(JSON.stringify({ 
-      success: false, 
-      error: error.message 
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    console.error("Error processing payment:", error);
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: error.message,
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
   }
 });
 
 // Simulate MPESA STK Push for development/testing
-async function simulateMPESASTKPush(phoneNumber: string, amount: number): Promise<MPESASTKResponse> {
+async function simulateMPESASTKPush(
+  phoneNumber: string,
+  amount: number
+): Promise<MPESASTKResponse> {
   // In production, this would be a real MPESA API call
-  const businessShortCode = Deno.env.get('MPESA_SHORTCODE') || '174379';
-  const passkey = Deno.env.get('MPESA_PASSKEY') || 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';
-  
-  console.log('Simulating MPESA STK Push for phone:', phoneNumber, 'Amount:', amount);
-  
+  const businessShortCode = Deno.env.get("MPESA_SHORTCODE") || "174379";
+  const passkey =
+    Deno.env.get("MPESA_PASSKEY") ||
+    "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919";
+
+  console.log(
+    "Simulating MPESA STK Push for phone:",
+    phoneNumber,
+    "Amount:",
+    amount
+  );
+
   // Simulate successful response
   return {
-    ResponseCode: '0',
-    ResponseDescription: 'Success. Request accepted for processing',
+    ResponseCode: "0",
+    ResponseDescription: "Success. Request accepted for processing",
     MerchantRequestID: `MR${Date.now()}`,
-    CheckoutRequestID: `ws_CO_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    CheckoutRequestID: `ws_CO_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`,
   };
 
   // In production, use actual MPESA API:
@@ -141,5 +164,5 @@ async function simulateMPESASTKPush(phoneNumber: string, amount: number): Promis
 // In production, implement MPESA token retrieval
 async function getMPESAToken(): Promise<string> {
   // Implement MPESA OAuth token retrieval
-  return 'sandbox_token';
+  return "sandbox_token";
 }

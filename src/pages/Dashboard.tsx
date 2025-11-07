@@ -1,9 +1,9 @@
-import React from 'react';
-import { useAuth } from '@/lib/auth';
-import { Navigate } from 'react-router-dom';
-import MemberDashboard from '@/components/dashboard/MemberDashboard';
-import AdministratorDashboard from '@/components/dashboard/AdministratorDashboard';
-import LoadingSpinner from '@/components/ui/loading-spinner';
+import React from "react";
+import { useAuth } from "@/lib/auth";
+import { Navigate } from "react-router-dom";
+import MemberDashboard from "@/components/dashboard/MemberDashboard";
+import AdministratorDashboard from "@/components/dashboard/AdministratorDashboard";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 
 const Dashboard = () => {
   const { user, profile, loading } = useAuth();
@@ -21,11 +21,11 @@ const Dashboard = () => {
   }
 
   switch (profile.role) {
-    case 'administrator':
+    case "administrator":
       return <AdministratorDashboard />;
-    case 'chapter_leader':
+    case "chapter_leader":
       return <Navigate to="/chapter-leader" replace />;
-    case 'member':
+    case "member":
     default:
       return <MemberDashboard />;
   }

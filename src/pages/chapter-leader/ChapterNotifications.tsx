@@ -1,28 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/lib/auth';
-import ChapterLeaderLayout from '@/components/chapter-leader/ChapterLeaderLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import LoadingSpinner from '@/components/ui/loading-spinner';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  Bell, 
-  Send, 
-  Users, 
-  Mail, 
+import React, { useState, useEffect } from "react";
+import { useAuth } from "@/lib/auth";
+import ChapterLeaderLayout from "@/components/chapter-leader/ChapterLeaderLayout";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import LoadingSpinner from "@/components/ui/loading-spinner";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Bell,
+  Send,
+  Users,
+  Mail,
   Calendar,
   CheckCircle,
   AlertCircle,
-  User
-} from 'lucide-react';
-import { chapterLeaderService, ChapterMember } from '@/lib/services/chapterLeaderService';
+  User,
+} from "lucide-react";
+import {
+  chapterLeaderService,
+  ChapterMember,
+} from "@/lib/services/chapterLeaderService";
 
 const ChapterNotifications = () => {
   const { profile } = useAuth();
@@ -31,24 +46,29 @@ const ChapterNotifications = () => {
   const [sending, setSending] = useState(false);
   const [members, setMembers] = useState<ChapterMember[]>([]);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
-  const [notificationType, setNotificationType] = useState<'metrics' | 'payment' | 'general'>('metrics');
-  const [subject, setSubject] = useState('');
-  const [message, setMessage] = useState('');
+  const [notificationType, setNotificationType] = useState<
+    "metrics" | "payment" | "general"
+  >("metrics");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
 
   // Predefined notification templates
   const notificationTemplates = {
     metrics: {
-      subject: 'PLANT Metrics Submission Reminder',
-      message: 'Hi {name},\n\nThis is a friendly reminder to submit your PLANT metrics for this month. Your participation helps our chapter track growth and success.\n\nPlease log in to submit your metrics at your earliest convenience.\n\nBest regards,\nChapter Leadership'
+      subject: "PLANT Metrics Submission Reminder",
+      message:
+        "Hi {name},\n\nThis is a friendly reminder to submit your PLANT metrics for this month. Your participation helps our chapter track growth and success.\n\nPlease log in to submit your metrics at your earliest convenience.\n\nBest regards,\nChapter Leadership",
     },
     payment: {
-      subject: 'Payment Reminder - Outstanding Invoice',
-      message: 'Hi {name},\n\nWe hope this message finds you well. This is a reminder that you have an outstanding invoice that requires attention.\n\nPlease review your account and process the payment at your earliest convenience.\n\nIf you have any questions, please don\'t hesitate to reach out.\n\nBest regards,\nChapter Leadership'
+      subject: "Payment Reminder - Outstanding Invoice",
+      message:
+        "Hi {name},\n\nWe hope this message finds you well. This is a reminder that you have an outstanding invoice that requires attention.\n\nPlease review your account and process the payment at your earliest convenience.\n\nIf you have any questions, please don't hesitate to reach out.\n\nBest regards,\nChapter Leadership",
     },
     general: {
-      subject: 'Chapter Update',
-      message: 'Hi {name},\n\nWe wanted to share some important updates with our chapter members.\n\n[Your message here]\n\nThank you for your continued participation and support.\n\nBest regards,\nChapter Leadership'
-    }
+      subject: "Chapter Update",
+      message:
+        "Hi {name},\n\nWe wanted to share some important updates with our chapter members.\n\n[Your message here]\n\nThank you for your continued participation and support.\n\nBest regards,\nChapter Leadership",
+    },
   };
 
   useEffect(() => {
@@ -57,17 +77,19 @@ const ChapterNotifications = () => {
 
       setLoading(true);
       try {
-        const result = await chapterLeaderService.getChapterMembers(profile.chapter_id);
+        const result = await chapterLeaderService.getChapterMembers(
+          profile.chapter_id
+        );
         if (result.error) {
           throw new Error(result.error);
         }
         setMembers(result.data || []);
       } catch (error) {
-        console.error('Error fetching members:', error);
+        console.error("Error fetching members:", error);
         toast({
           title: "Error loading members",
           description: "Please try refreshing the page",
-          variant: "destructive"
+          variant: "destructive",
         });
       } finally {
         setLoading(false);
@@ -88,13 +110,13 @@ const ChapterNotifications = () => {
     if (checked) {
       setSelectedMembers([...selectedMembers, memberId]);
     } else {
-      setSelectedMembers(selectedMembers.filter(id => id !== memberId));
+      setSelectedMembers(selectedMembers.filter((id) => id !== memberId));
     }
   };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedMembers(members.map(member => member.id));
+      setSelectedMembers(members.map((member) => member.id));
     } else {
       setSelectedMembers([]);
     }
@@ -104,8 +126,9 @@ const ChapterNotifications = () => {
     if (selectedMembers.length === 0) {
       toast({
         title: "No recipients selected",
-        description: "Please select at least one member to send notifications to",
-        variant: "destructive"
+        description:
+          "Please select at least one member to send notifications to",
+        variant: "destructive",
       });
       return;
     }
@@ -114,7 +137,7 @@ const ChapterNotifications = () => {
       toast({
         title: "Missing information",
         description: "Please fill in both subject and message",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -123,13 +146,17 @@ const ChapterNotifications = () => {
     try {
       // Send notifications to selected members
       for (const memberId of selectedMembers) {
-        await chapterLeaderService.sendMemberReminder(memberId, notificationType, message);
+        await chapterLeaderService.sendMemberReminder(
+          memberId,
+          notificationType,
+          message
+        );
       }
 
       toast({
         title: "Notifications sent successfully",
         description: `${selectedMembers.length} notification(s) sent to chapter members`,
-        variant: "default"
+        variant: "default",
       });
 
       // Reset form
@@ -137,13 +164,12 @@ const ChapterNotifications = () => {
       const template = notificationTemplates[notificationType];
       setSubject(template.subject);
       setMessage(template.message);
-
     } catch (error) {
-      console.error('Error sending notifications:', error);
+      console.error("Error sending notifications:", error);
       toast({
         title: "Error sending notifications",
         description: "Please try again later",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setSending(false);
@@ -197,17 +223,23 @@ const ChapterNotifications = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="notification-type">Notification Type</Label>
-                  <Select 
-                    value={notificationType} 
-                    onValueChange={(value: 'metrics' | 'payment' | 'general') => setNotificationType(value)}
+                  <Select
+                    value={notificationType}
+                    onValueChange={(value: "metrics" | "payment" | "general") =>
+                      setNotificationType(value)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select notification type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="metrics">Metrics Submission Reminder</SelectItem>
+                      <SelectItem value="metrics">
+                        Metrics Submission Reminder
+                      </SelectItem>
                       <SelectItem value="payment">Payment Reminder</SelectItem>
-                      <SelectItem value="general">General Chapter Update</SelectItem>
+                      <SelectItem value="general">
+                        General Chapter Update
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -242,7 +274,7 @@ const ChapterNotifications = () => {
             {/* Send Button */}
             <Card>
               <CardContent className="pt-6">
-                <Button 
+                <Button
                   onClick={handleSendNotifications}
                   disabled={sending || selectedMembers.length === 0}
                   className="w-full"
@@ -256,7 +288,8 @@ const ChapterNotifications = () => {
                   ) : (
                     <>
                       <Send className="mr-2 h-4 w-4" />
-                      Send to {selectedMembers.length} Member{selectedMembers.length !== 1 ? 's' : ''}
+                      Send to {selectedMembers.length} Member
+                      {selectedMembers.length !== 1 ? "s" : ""}
                     </>
                   )}
                 </Button>
@@ -280,7 +313,10 @@ const ChapterNotifications = () => {
               <div className="flex items-center space-x-2 pb-2 border-b">
                 <Checkbox
                   id="select-all"
-                  checked={selectedMembers.length === members.length && members.length > 0}
+                  checked={
+                    selectedMembers.length === members.length &&
+                    members.length > 0
+                  }
                   onCheckedChange={handleSelectAll}
                 />
                 <Label htmlFor="select-all" className="font-medium">
@@ -295,7 +331,9 @@ const ChapterNotifications = () => {
                     <Checkbox
                       id={`member-${member.id}`}
                       checked={selectedMembers.includes(member.id)}
-                      onCheckedChange={(checked) => handleMemberToggle(member.id, checked as boolean)}
+                      onCheckedChange={(checked) =>
+                        handleMemberToggle(member.id, checked as boolean)
+                      }
                     />
                     <div className="flex items-center gap-2 flex-1">
                       <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
@@ -303,18 +341,20 @@ const ChapterNotifications = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">
-                          {member.full_name || 'Unknown'}
+                          {member.full_name || "Unknown"}
                         </p>
                         <p className="text-xs text-muted-foreground truncate">
                           {member.email}
                         </p>
                       </div>
                     </div>
-                    {member.lastActivity && new Date(member.lastActivity).getTime() < Date.now() - 30 * 24 * 60 * 60 * 1000 && (
-                      <Badge variant="secondary" className="text-xs">
-                        Inactive
-                      </Badge>
-                    )}
+                    {member.lastActivity &&
+                      new Date(member.lastActivity).getTime() <
+                        Date.now() - 30 * 24 * 60 * 60 * 1000 && (
+                        <Badge variant="secondary" className="text-xs">
+                          Inactive
+                        </Badge>
+                      )}
                   </div>
                 ))}
               </div>
@@ -336,9 +376,7 @@ const ChapterNotifications = () => {
               <Calendar className="h-5 w-5" />
               Quick Actions
             </CardTitle>
-            <CardDescription>
-              Common notification scenarios
-            </CardDescription>
+            <CardDescription>Common notification scenarios</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -347,16 +385,20 @@ const ChapterNotifications = () => {
                 className="h-auto p-4 flex flex-col gap-2"
                 onClick={() => {
                   // Select inactive members (no activity in 30 days)
-                  const inactiveMembers = members.filter(member => 
-                    !member.lastActivity || 
-                    new Date(member.lastActivity).getTime() < Date.now() - 30 * 24 * 60 * 60 * 1000
+                  const inactiveMembers = members.filter(
+                    (member) =>
+                      !member.lastActivity ||
+                      new Date(member.lastActivity).getTime() <
+                        Date.now() - 30 * 24 * 60 * 60 * 1000
                   );
-                  setSelectedMembers(inactiveMembers.map(m => m.id));
-                  setNotificationType('metrics');
+                  setSelectedMembers(inactiveMembers.map((m) => m.id));
+                  setNotificationType("metrics");
                 }}
               >
                 <AlertCircle className="h-5 w-5" />
-                <span className="text-sm font-medium">Remind Inactive Members</span>
+                <span className="text-sm font-medium">
+                  Remind Inactive Members
+                </span>
                 <span className="text-xs text-muted-foreground">
                   Select members with no recent activity
                 </span>
@@ -366,12 +408,14 @@ const ChapterNotifications = () => {
                 variant="outline"
                 className="h-auto p-4 flex flex-col gap-2"
                 onClick={() => {
-                  setSelectedMembers(members.map(m => m.id));
-                  setNotificationType('general');
+                  setSelectedMembers(members.map((m) => m.id));
+                  setNotificationType("general");
                 }}
               >
                 <CheckCircle className="h-5 w-5" />
-                <span className="text-sm font-medium">Chapter Announcement</span>
+                <span className="text-sm font-medium">
+                  Chapter Announcement
+                </span>
                 <span className="text-xs text-muted-foreground">
                   Send update to all members
                 </span>
@@ -382,7 +426,7 @@ const ChapterNotifications = () => {
                 className="h-auto p-4 flex flex-col gap-2"
                 onClick={() => {
                   // You could select members with pending payments here
-                  setNotificationType('payment');
+                  setNotificationType("payment");
                 }}
               >
                 <Mail className="h-5 w-5" />

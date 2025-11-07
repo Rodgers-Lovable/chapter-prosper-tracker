@@ -1,20 +1,39 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Users, 
-  GraduationCap, 
-  Activity, 
-  Network, 
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Users,
+  GraduationCap,
+  Activity,
+  Network,
   DollarSign,
   History,
-  Filter
-} from 'lucide-react';
-import { MetricEntry, MetricType } from '@/lib/services/metricsService';
-import { format } from 'date-fns';
+  Filter,
+} from "lucide-react";
+import { MetricEntry, MetricType } from "@/lib/services/metricsService";
+import { format } from "date-fns";
 
 interface MetricsHistoryProps {
   metrics: MetricEntry[];
@@ -22,33 +41,38 @@ interface MetricsHistoryProps {
 }
 
 const metricTypeConfig = {
-  participation: { icon: Users, color: 'text-participation', label: 'Participation' },
-  learning: { icon: GraduationCap, color: 'text-learning', label: 'Learning' },
-  activity: { icon: Activity, color: 'text-activity', label: 'Activity' },
-  networking: { icon: Network, color: 'text-networking', label: 'Networking' },
-  trade: { icon: DollarSign, color: 'text-trade', label: 'Trade' }
+  participation: {
+    icon: Users,
+    color: "text-participation",
+    label: "Participation",
+  },
+  learning: { icon: GraduationCap, color: "text-learning", label: "Learning" },
+  activity: { icon: Activity, color: "text-activity", label: "Activity" },
+  networking: { icon: Network, color: "text-networking", label: "Networking" },
+  trade: { icon: DollarSign, color: "text-trade", label: "Trade" },
 };
 
-const MetricsHistory: React.FC<MetricsHistoryProps> = ({ 
-  metrics, 
-  isLoading 
+const MetricsHistory: React.FC<MetricsHistoryProps> = ({
+  metrics,
+  isLoading,
 }) => {
-  const [filterType, setFilterType] = useState<MetricType | 'all'>('all');
-  const [sortBy, setSortBy] = useState<'date' | 'value' | 'type'>('date');
+  const [filterType, setFilterType] = useState<MetricType | "all">("all");
+  const [sortBy, setSortBy] = useState<"date" | "value" | "type">("date");
 
   const filteredMetrics = React.useMemo(() => {
-    let filtered = filterType === 'all' 
-      ? metrics 
-      : metrics.filter(metric => metric.metric_type === filterType);
+    let filtered =
+      filterType === "all"
+        ? metrics
+        : metrics.filter((metric) => metric.metric_type === filterType);
 
     // Sort metrics
     filtered.sort((a, b) => {
       switch (sortBy) {
-        case 'date':
+        case "date":
           return new Date(b.date).getTime() - new Date(a.date).getTime();
-        case 'value':
+        case "value":
           return Number(b.value) - Number(a.value);
-        case 'type':
+        case "type":
           return a.metric_type.localeCompare(b.metric_type);
         default:
           return 0;
@@ -76,7 +100,7 @@ const MetricsHistory: React.FC<MetricsHistoryProps> = ({
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {[1, 2, 3, 4, 5].map(i => (
+            {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="h-16 bg-muted/50 rounded animate-pulse" />
             ))}
           </div>
@@ -95,11 +119,17 @@ const MetricsHistory: React.FC<MetricsHistoryProps> = ({
               Metrics History
             </CardTitle>
             <CardDescription>
-              All your submitted PLANT metrics ({filteredMetrics.length} entries)
+              All your submitted PLANT metrics ({filteredMetrics.length}{" "}
+              entries)
             </CardDescription>
           </div>
           <div className="flex gap-2">
-            <Select value={filterType} onValueChange={(value) => setFilterType(value as MetricType | 'all')}>
+            <Select
+              value={filterType}
+              onValueChange={(value) =>
+                setFilterType(value as MetricType | "all")
+              }
+            >
               <SelectTrigger className="w-40">
                 <Filter className="h-4 w-4 mr-2" />
                 <SelectValue />
@@ -116,8 +146,13 @@ const MetricsHistory: React.FC<MetricsHistoryProps> = ({
                 ))}
               </SelectContent>
             </Select>
-            
-            <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'date' | 'value' | 'type')}>
+
+            <Select
+              value={sortBy}
+              onValueChange={(value) =>
+                setSortBy(value as "date" | "value" | "type")
+              }
+            >
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
@@ -136,10 +171,11 @@ const MetricsHistory: React.FC<MetricsHistoryProps> = ({
             <History className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>No metrics found.</p>
             <p className="text-sm">
-              {filterType === 'all' 
-                ? 'Start adding metrics to see your history!'
-                : `No ${metricTypeConfig[filterType as MetricType]?.label} metrics found.`
-              }
+              {filterType === "all"
+                ? "Start adding metrics to see your history!"
+                : `No ${
+                    metricTypeConfig[filterType as MetricType]?.label
+                  } metrics found.`}
             </p>
           </div>
         ) : (
@@ -157,23 +193,25 @@ const MetricsHistory: React.FC<MetricsHistoryProps> = ({
                 {filteredMetrics.map((metric) => (
                   <TableRow key={metric.id}>
                     <TableCell>
-                      {format(new Date(metric.date), 'MMM dd, yyyy')}
+                      {format(new Date(metric.date), "MMM dd, yyyy")}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="flex items-center gap-1 w-fit">
+                      <Badge
+                        variant="outline"
+                        className="flex items-center gap-1 w-fit"
+                      >
                         {getMetricIcon(metric.metric_type)}
                         {metricTypeConfig[metric.metric_type].label}
                       </Badge>
                     </TableCell>
                     <TableCell className="font-mono">
-                      {metric.metric_type === 'trade' 
+                      {metric.metric_type === "trade"
                         ? `KES ${Number(metric.value).toLocaleString()}`
-                        : Number(metric.value).toLocaleString()
-                      }
+                        : Number(metric.value).toLocaleString()}
                     </TableCell>
                     <TableCell className="max-w-xs">
                       <div className="truncate" title={metric.description}>
-                        {metric.description || 'No description'}
+                        {metric.description || "No description"}
                       </div>
                     </TableCell>
                   </TableRow>

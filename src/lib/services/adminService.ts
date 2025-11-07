@@ -474,6 +474,5 @@ export const adminService = {
     }
   },
 
-  async deleteChapter(chapterId: string) {
-  }
+  async deleteChapter(chapterId: string) {},
 };

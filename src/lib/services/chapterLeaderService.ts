@@ -69,12 +69,14 @@ export interface ChapterActivity {
 }
 
 export const chapterLeaderService = {
-  async getChapterName(chapterId: string): Promise<{ data: string | null; error: any }> {
+  async getChapterName(
+    chapterId: string
+  ): Promise<{ data: string | null; error: any }> {
     try {
       const { data, error } = await supabase
-        .from('chapters')
-        .select('name')
-        .eq('id', chapterId)
+        .from("chapters")
+        .select("name")
+        .eq("id", chapterId)
         .single();
 
       if (error) throw error;
@@ -84,7 +86,9 @@ export const chapterLeaderService = {
     }
   },
 
-  async getChapterStats(chapterId: string): Promise<{ data: ChapterStats | null; error: any }> {
+  async getChapterStats(
+    chapterId: string
+  ): Promise<{ data: ChapterStats | null; error: any }> {
     try {
       // Get total members
       const { count: totalMembers } = await supabase
@@ -112,17 +116,17 @@ export const chapterLeaderService = {
 
       // Get member counts for growth calculation
       const { count: currentMonthMembers } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .eq('chapter_id', chapterId)
-        .gte('created_at', startOfMonth.toISOString());
+        .from("profiles")
+        .select("*", { count: "exact", head: true })
+        .eq("chapter_id", chapterId)
+        .gte("created_at", startOfMonth.toISOString());
 
       const { count: lastMonthMembers } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .eq('chapter_id', chapterId)
-        .gte('created_at', startOfLastMonth.toISOString())
-        .lte('created_at', endOfLastMonth.toISOString());
+        .from("profiles")
+        .select("*", { count: "exact", head: true })
+        .eq("chapter_id", chapterId)
+        .gte("created_at", startOfLastMonth.toISOString())
+        .lte("created_at", endOfLastMonth.toISOString());
 
       const { data: currentMetrics } = await supabase
         .from("metrics")
@@ -175,7 +179,8 @@ export const chapterLeaderService = {
         totalRevenue: currentRevenue,
         monthlyGrowth: {
           members: (currentMonthMembers || 0) - (lastMonthMembers || 0),
-          participation: currentTotals.participation - lastMonthTotals.participation,
+          participation:
+            currentTotals.participation - lastMonthTotals.participation,
           learningHours: currentTotals.learning - lastMonthTotals.learning,
           revenue: currentRevenue - lastMonthRevenue,
         },
@@ -482,64 +487,74 @@ export const chapterLeaderService = {
     userId: string
   ): Promise<{ success: boolean; error?: any }> {
     try {
-      const { data, error } = await supabase.functions.invoke('resend-invite', {
-        body: { userId }
+      const { data, error } = await supabase.functions.invoke("resend-invite", {
+        body: { userId },
       });
 
       if (error) throw error;
       return { success: true };
     } catch (error) {
-      console.error('Error resending invite:', error);
+      console.error("Error resending invite:", error);
       return { success: false, error };
     }
   },
 
-  async getPendingActions(chapterId: string): Promise<{ data: any[] | null; error: any }> {
+  async getPendingActions(
+    chapterId: string
+  ): Promise<{ data: any[] | null; error: any }> {
     try {
       const actions = [];
-      
+
       // Check for inactive members
       const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, created_at')
-        .eq('chapter_id', chapterId);
+        .from("profiles")
+        .select("id, created_at")
+        .eq("chapter_id", chapterId);
 
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       if (profiles) {
         const { data: recentMetrics } = await supabase
-          .from('metrics')
-          .select('user_id')
-          .eq('chapter_id', chapterId)
-          .gte('created_at', thirtyDaysAgo.toISOString());
+          .from("metrics")
+          .select("user_id")
+          .eq("chapter_id", chapterId)
+          .gte("created_at", thirtyDaysAgo.toISOString());
 
-        const activeUserIds = new Set(recentMetrics?.map(m => m.user_id) || []);
-        const inactiveCount = profiles.filter(p => !activeUserIds.has(p.id)).length;
+        const activeUserIds = new Set(
+          recentMetrics?.map((m) => m.user_id) || []
+        );
+        const inactiveCount = profiles.filter(
+          (p) => !activeUserIds.has(p.id)
+        ).length;
 
         if (inactiveCount > 0) {
           actions.push({
-            type: 'Members',
-            description: `${inactiveCount} inactive member${inactiveCount > 1 ? 's' : ''} need attention`,
-            priority: inactiveCount > 5 ? 'high' : 'medium',
-            count: inactiveCount
+            type: "Members",
+            description: `${inactiveCount} inactive member${
+              inactiveCount > 1 ? "s" : ""
+            } need attention`,
+            priority: inactiveCount > 5 ? "high" : "medium",
+            count: inactiveCount,
           });
         }
       }
 
       // Check for pending trades
       const { count: pendingTradesCount } = await supabase
-        .from('trades')
-        .select('*', { count: 'exact', head: true })
-        .eq('chapter_id', chapterId)
-        .eq('status', 'pending');
+        .from("trades")
+        .select("*", { count: "exact", head: true })
+        .eq("chapter_id", chapterId)
+        .eq("status", "pending");
 
       if (pendingTradesCount && pendingTradesCount > 0) {
         actions.push({
-          type: 'Trades',
-          description: `${pendingTradesCount} pending trade${pendingTradesCount > 1 ? 's' : ''} to review`,
-          priority: 'medium',
-          count: pendingTradesCount
+          type: "Trades",
+          description: `${pendingTradesCount} pending trade${
+            pendingTradesCount > 1 ? "s" : ""
+          } to review`,
+          priority: "medium",
+          count: pendingTradesCount,
         });
       }
 
@@ -547,10 +562,10 @@ export const chapterLeaderService = {
       const today = new Date();
       if (today.getDate() > 5) {
         actions.push({
-          type: 'Reports',
-          description: 'Monthly chapter report due',
-          priority: 'high',
-          count: 1
+          type: "Reports",
+          description: "Monthly chapter report due",
+          priority: "high",
+          count: 1,
         });
       }
 

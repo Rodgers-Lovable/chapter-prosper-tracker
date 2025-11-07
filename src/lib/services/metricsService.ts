@@ -1,6 +1,11 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from "@/integrations/supabase/client";
 
-export type MetricType = 'participation' | 'learning' | 'activity' | 'networking' | 'trade';
+export type MetricType =
+  | "participation"
+  | "learning"
+  | "activity"
+  | "networking"
+  | "trade";
 
 export interface MetricEntry {
   id?: string;
@@ -23,10 +28,12 @@ export interface MetricsSummary {
 }
 
 export const metricsService = {
-  async addMetric(metric: Omit<MetricEntry, 'id' | 'created_at' | 'updated_at'>): Promise<{ data: MetricEntry | null; error: any }> {
+  async addMetric(
+    metric: Omit<MetricEntry, "id" | "created_at" | "updated_at">
+  ): Promise<{ data: MetricEntry | null; error: any }> {
     try {
       const { data, error } = await supabase
-        .from('metrics')
+        .from("metrics")
         .insert([metric])
         .select()
         .single();
@@ -37,19 +44,23 @@ export const metricsService = {
     }
   },
 
-  async getUserMetrics(userId: string, startDate?: string, endDate?: string): Promise<{ data: MetricEntry[] | null; error: any }> {
+  async getUserMetrics(
+    userId: string,
+    startDate?: string,
+    endDate?: string
+  ): Promise<{ data: MetricEntry[] | null; error: any }> {
     try {
       let query = supabase
-        .from('metrics')
-        .select('*')
-        .eq('user_id', userId)
-        .order('date', { ascending: false });
+        .from("metrics")
+        .select("*")
+        .eq("user_id", userId)
+        .order("date", { ascending: false });
 
       if (startDate) {
-        query = query.gte('date', startDate);
+        query = query.gte("date", startDate);
       }
       if (endDate) {
-        query = query.lte('date', endDate);
+        query = query.lte("date", endDate);
       }
 
       const { data, error } = await query;
@@ -59,29 +70,32 @@ export const metricsService = {
     }
   },
 
-  async getMetricsSummary(userId: string, period: 'month' | 'quarter' | 'year' = 'month'): Promise<{ data: MetricsSummary | null; error: any }> {
+  async getMetricsSummary(
+    userId: string,
+    period: "month" | "quarter" | "year" = "month"
+  ): Promise<{ data: MetricsSummary | null; error: any }> {
     try {
       const now = new Date();
       let startDate: Date;
 
       switch (period) {
-        case 'month':
+        case "month":
           startDate = new Date(now.getFullYear(), now.getMonth(), 1);
           break;
-        case 'quarter':
+        case "quarter":
           const quarterStart = Math.floor(now.getMonth() / 3) * 3;
           startDate = new Date(now.getFullYear(), quarterStart, 1);
           break;
-        case 'year':
+        case "year":
           startDate = new Date(now.getFullYear(), 0, 1);
           break;
       }
 
       const { data, error } = await supabase
-        .from('metrics')
-        .select('metric_type, value')
-        .eq('user_id', userId)
-        .gte('date', startDate.toISOString().split('T')[0]);
+        .from("metrics")
+        .select("metric_type, value")
+        .eq("user_id", userId)
+        .gte("date", startDate.toISOString().split("T")[0]);
 
       if (error) return { data: null, error };
 
@@ -90,10 +104,10 @@ export const metricsService = {
         learning: 0,
         activity: 0,
         networking: 0,
-        trade: 0
+        trade: 0,
       };
 
-      data?.forEach(metric => {
+      data?.forEach((metric) => {
         summary[metric.metric_type as MetricType] += Number(metric.value);
       });
 
@@ -103,47 +117,55 @@ export const metricsService = {
     }
   },
 
-  async getChapterLeaderboard(chapterId: string, period: 'month' | 'quarter' | 'year' = 'month'): Promise<{ data: any[] | null; error: any }> {
+  async getChapterLeaderboard(
+    chapterId: string,
+    period: "month" | "quarter" | "year" = "month"
+  ): Promise<{ data: any[] | null; error: any }> {
     try {
       const now = new Date();
       let startDate: Date;
 
       switch (period) {
-        case 'month':
+        case "month":
           startDate = new Date(now.getFullYear(), now.getMonth(), 1);
           break;
-        case 'quarter':
+        case "quarter":
           const quarterStart = Math.floor(now.getMonth() / 3) * 3;
           startDate = new Date(now.getFullYear(), quarterStart, 1);
           break;
-        case 'year':
+        case "year":
           startDate = new Date(now.getFullYear(), 0, 1);
           break;
       }
 
       const { data, error } = await supabase
-        .from('metrics')
-        .select(`
+        .from("metrics")
+        .select(
+          `
           user_id,
           metric_type,
           value,
           profiles!inner(full_name, business_name)
-        `)
-        .eq('chapter_id', chapterId)
-        .gte('date', startDate.toISOString().split('T')[0]);
+        `
+        )
+        .eq("chapter_id", chapterId)
+        .gte("date", startDate.toISOString().split("T")[0]);
 
       if (error) return { data: null, error };
 
       // Aggregate metrics by user
-      const userMetrics: Record<string, { 
-        user_id: string; 
-        full_name: string; 
-        business_name: string; 
-        total: number;
-        metrics: MetricsSummary 
-      }> = {};
+      const userMetrics: Record<
+        string,
+        {
+          user_id: string;
+          full_name: string;
+          business_name: string;
+          total: number;
+          metrics: MetricsSummary;
+        }
+      > = {};
 
-      data?.forEach(metric => {
+      data?.forEach((metric) => {
         if (!userMetrics[metric.user_id]) {
           userMetrics[metric.user_id] = {
             user_id: metric.user_id,
@@ -155,13 +177,14 @@ export const metricsService = {
               learning: 0,
               activity: 0,
               networking: 0,
-              trade: 0
-            }
+              trade: 0,
+            },
           };
         }
-        
+
         const value = Number(metric.value);
-        userMetrics[metric.user_id].metrics[metric.metric_type as MetricType] += value;
+        userMetrics[metric.user_id].metrics[metric.metric_type as MetricType] +=
+          value;
         userMetrics[metric.user_id].total += value;
       });
 
@@ -174,5 +197,5 @@ export const metricsService = {
     } catch (error) {
       return { data: null, error };
     }
-  }
+  },
 };

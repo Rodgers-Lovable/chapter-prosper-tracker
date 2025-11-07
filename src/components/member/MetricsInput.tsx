@@ -1,27 +1,64 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format } from 'date-fns';
-import { CalendarIcon, Users, GraduationCap, Activity, Network, DollarSign } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useAuth } from '@/lib/auth';
-import { metricsService, MetricType } from '@/lib/services/metricsService';
-import { toast } from '@/hooks/use-toast';
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormDescription,
+} from "@/components/ui/form";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import {
+  CalendarIcon,
+  Users,
+  GraduationCap,
+  Activity,
+  Network,
+  DollarSign,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
+import { metricsService, MetricType } from "@/lib/services/metricsService";
+import { toast } from "@/hooks/use-toast";
 
 const metricSchema = z.object({
-  metric_type: z.enum(['participation', 'learning', 'activity', 'networking', 'trade']),
-  value: z.number().min(0, 'Value must be positive'),
+  metric_type: z.enum([
+    "participation",
+    "learning",
+    "activity",
+    "networking",
+    "trade",
+  ]),
+  value: z.number().min(0, "Value must be positive"),
   description: z.string().optional(),
-  date: z.date()
+  date: z.date(),
 });
 
 type MetricFormData = z.infer<typeof metricSchema>;
@@ -32,40 +69,40 @@ interface MetricsInputProps {
 
 const metricTypeOptions = [
   {
-    value: 'participation' as MetricType,
-    label: 'Participation',
+    value: "participation" as MetricType,
+    label: "Participation",
     icon: Users,
-    description: 'Attendance, punctuality, consistency',
-    placeholder: 'e.g., Attended weekly meeting (score 1-10)'
+    description: "Attendance, punctuality, consistency",
+    placeholder: "e.g., Attended weekly meeting (score 1-10)",
   },
   {
-    value: 'learning' as MetricType,
-    label: 'Learning',
+    value: "learning" as MetricType,
+    label: "Learning",
     icon: GraduationCap,
-    description: 'Study hours, mentorship, training',
-    placeholder: 'e.g., Completed 2 hours of training'
+    description: "Study hours, mentorship, training",
+    placeholder: "e.g., Completed 2 hours of training",
   },
   {
-    value: 'activity' as MetricType,
-    label: 'Activity',
+    value: "activity" as MetricType,
+    label: "Activity",
     icon: Activity,
-    description: 'Referrals given/received, chapter involvement',
-    placeholder: 'e.g., Gave 3 referrals this week'
+    description: "Referrals given/received, chapter involvement",
+    placeholder: "e.g., Gave 3 referrals this week",
   },
   {
-    value: 'networking' as MetricType,
-    label: 'Networking',
+    value: "networking" as MetricType,
+    label: "Networking",
     icon: Network,
-    description: 'Meetings, partnerships created',
-    placeholder: 'e.g., Had 5 one-on-one meetings'
+    description: "Meetings, partnerships created",
+    placeholder: "e.g., Had 5 one-on-one meetings",
   },
   {
-    value: 'trade' as MetricType,
-    label: 'Trade',
+    value: "trade" as MetricType,
+    label: "Trade",
     icon: DollarSign,
-    description: 'Deals closed, value of transactions',
-    placeholder: 'e.g., Closed deals worth KES 50,000'
-  }
+    description: "Deals closed, value of transactions",
+    placeholder: "e.g., Closed deals worth KES 50,000",
+  },
 ];
 
 const MetricsInput: React.FC<MetricsInputProps> = ({ onMetricAdded }) => {
@@ -75,22 +112,25 @@ const MetricsInput: React.FC<MetricsInputProps> = ({ onMetricAdded }) => {
   const form = useForm<MetricFormData>({
     resolver: zodResolver(metricSchema),
     defaultValues: {
-      metric_type: 'participation',
+      metric_type: "participation",
       value: 0,
-      description: '',
-      date: new Date()
-    }
+      description: "",
+      date: new Date(),
+    },
   });
 
-  const selectedMetricType = form.watch('metric_type');
-  const selectedMetric = metricTypeOptions.find(option => option.value === selectedMetricType);
+  const selectedMetricType = form.watch("metric_type");
+  const selectedMetric = metricTypeOptions.find(
+    (option) => option.value === selectedMetricType
+  );
 
   const onSubmit = async (data: MetricFormData) => {
     if (!profile?.id || !profile?.chapter_id) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Profile information is missing. Please refresh and try again."
+        description:
+          "Profile information is missing. Please refresh and try again.",
       });
       return;
     }
@@ -103,35 +143,35 @@ const MetricsInput: React.FC<MetricsInputProps> = ({ onMetricAdded }) => {
         metric_type: data.metric_type,
         value: data.value,
         description: data.description,
-        date: format(data.date, 'yyyy-MM-dd')
+        date: format(data.date, "yyyy-MM-dd"),
       });
 
       if (error) {
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Failed to add metric. Please try again."
+          description: "Failed to add metric. Please try again.",
         });
         return;
       }
 
       form.reset({
-        metric_type: 'participation',
+        metric_type: "participation",
         value: 0,
-        description: '',
-        date: new Date()
+        description: "",
+        date: new Date(),
       });
 
       onMetricAdded?.();
       toast({
         title: "Success",
-        description: "Metric added successfully!"
+        description: "Metric added successfully!",
       });
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "An unexpected error occurred."
+        description: "An unexpected error occurred.",
       });
     } finally {
       setIsLoading(false);
@@ -158,7 +198,10 @@ const MetricsInput: React.FC<MetricsInputProps> = ({ onMetricAdded }) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Metric Type</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a metric type" />
@@ -172,8 +215,12 @@ const MetricsInput: React.FC<MetricsInputProps> = ({ onMetricAdded }) => {
                             <div className="flex items-center gap-2">
                               <Icon className="h-4 w-4" />
                               <div>
-                                <div className="font-medium">{option.label}</div>
-                                <div className="text-xs text-muted-foreground">{option.description}</div>
+                                <div className="font-medium">
+                                  {option.label}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {option.description}
+                                </div>
                               </div>
                             </div>
                           </SelectItem>
@@ -199,14 +246,15 @@ const MetricsInput: React.FC<MetricsInputProps> = ({ onMetricAdded }) => {
                       step="0.01"
                       placeholder="Enter numeric value"
                       {...field}
-                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                      onChange={(e) =>
+                        field.onChange(parseFloat(e.target.value) || 0)
+                      }
                     />
                   </FormControl>
                   <FormDescription>
-                    {selectedMetric?.value === 'trade' 
-                      ? 'Enter amount in KES' 
-                      : 'Enter a numeric value (hours, count, score, etc.)'
-                    }
+                    {selectedMetric?.value === "trade"
+                      ? "Enter amount in KES"
+                      : "Enter a numeric value (hours, count, score, etc.)"}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -221,7 +269,10 @@ const MetricsInput: React.FC<MetricsInputProps> = ({ onMetricAdded }) => {
                   <FormLabel>Description (Optional)</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder={selectedMetric?.placeholder || 'Add details about this metric...'}
+                      placeholder={
+                        selectedMetric?.placeholder ||
+                        "Add details about this metric..."
+                      }
                       className="min-h-[80px]"
                       {...field}
                     />
@@ -275,7 +326,7 @@ const MetricsInput: React.FC<MetricsInputProps> = ({ onMetricAdded }) => {
             />
 
             <Button type="submit" disabled={isLoading} className="w-full">
-              {isLoading ? 'Adding...' : 'Add Metric'}
+              {isLoading ? "Adding..." : "Add Metric"}
             </Button>
           </form>
         </Form>

@@ -1,34 +1,45 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { 
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { 
-  Mail, 
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Mail,
   Send,
   Users,
   Building,
   Target,
   Clock,
   CheckCircle,
-  AlertCircle
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { adminService } from '@/lib/services/adminService';
-import { supabase } from '@/integrations/supabase/client';
-import { useEffect } from 'react';
+  AlertCircle,
+} from "lucide-react";
+import { toast } from "sonner";
+import { adminService } from "@/lib/services/adminService";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 
-type NotificationType = 'reminder' | 'announcement' | 'recognition' | 'invoice' | 'system';
-type RecipientType = 'all' | 'chapter' | 'role' | 'custom';
+type NotificationType =
+  | "reminder"
+  | "announcement"
+  | "recognition"
+  | "invoice"
+  | "system";
+type RecipientType = "all" | "chapter" | "role" | "custom";
 
 interface NotificationTemplate {
   id: string;
@@ -42,15 +53,15 @@ const NotificationManagement: React.FC = () => {
   const [sending, setSending] = useState(false);
   const [stats, setStats] = useState({ sent: 0, scheduled: 0 });
   const [notificationConfig, setNotificationConfig] = useState({
-    type: 'reminder' as NotificationType,
-    recipientType: 'all' as RecipientType,
-    subject: '',
-    message: '',
-    chapterId: '',
-    role: '',
-    customRecipients: '',
-    scheduleDate: '',
-    scheduleTime: ''
+    type: "reminder" as NotificationType,
+    recipientType: "all" as RecipientType,
+    subject: "",
+    message: "",
+    chapterId: "",
+    role: "",
+    customRecipients: "",
+    scheduleDate: "",
+    scheduleTime: "",
   });
 
   useEffect(() => {
@@ -60,57 +71,57 @@ const NotificationManagement: React.FC = () => {
   const loadStats = async () => {
     try {
       const { data, error } = await supabase
-        .from('notifications_history')
-        .select('status');
-      
+        .from("notifications_history")
+        .select("status");
+
       if (!error && data) {
-        const sent = data.filter(n => n.status === 'sent').length;
-        const scheduled = data.filter(n => n.status === 'scheduled').length;
+        const sent = data.filter((n) => n.status === "sent").length;
+        const scheduled = data.filter((n) => n.status === "scheduled").length;
         setStats({ sent, scheduled });
       }
     } catch (error) {
-      console.error('Error loading stats:', error);
+      console.error("Error loading stats:", error);
     }
   };
 
   const notificationTypes = [
-    { 
-      value: 'reminder', 
-      label: 'Reminder', 
-      description: 'PLANT metric submissions, unpaid invoices, etc.',
-      icon: Clock
+    {
+      value: "reminder",
+      label: "Reminder",
+      description: "PLANT metric submissions, unpaid invoices, etc.",
+      icon: Clock,
     },
-    { 
-      value: 'announcement', 
-      label: 'Announcement', 
-      description: 'System updates, new features, important news',
-      icon: Mail
+    {
+      value: "announcement",
+      label: "Announcement",
+      description: "System updates, new features, important news",
+      icon: Mail,
     },
-    { 
-      value: 'recognition', 
-      label: 'Recognition', 
-      description: 'Top performer awards, milestone achievements',
-      icon: CheckCircle
+    {
+      value: "recognition",
+      label: "Recognition",
+      description: "Top performer awards, milestone achievements",
+      icon: CheckCircle,
     },
-    { 
-      value: 'invoice', 
-      label: 'Invoice Notification', 
-      description: 'Payment reminders and invoice updates',
-      icon: AlertCircle
+    {
+      value: "invoice",
+      label: "Invoice Notification",
+      description: "Payment reminders and invoice updates",
+      icon: AlertCircle,
     },
-    { 
-      value: 'system', 
-      label: 'System Alert', 
-      description: 'Maintenance notifications, urgent updates',
-      icon: AlertCircle
-    }
+    {
+      value: "system",
+      label: "System Alert",
+      description: "Maintenance notifications, urgent updates",
+      icon: AlertCircle,
+    },
   ];
 
   const templates: NotificationTemplate[] = [
     {
-      id: '1',
-      name: 'Monthly PLANT Reminder',
-      subject: 'Monthly PLANT Metrics Due - Submit by [DATE]',
+      id: "1",
+      name: "Monthly PLANT Reminder",
+      subject: "Monthly PLANT Metrics Due - Submit by [DATE]",
       body: `Dear [NAME],
 
 This is a friendly reminder that your monthly PLANT metrics are due for submission.
@@ -121,12 +132,12 @@ Your participation helps us track the growth and success of our business network
 
 Best regards,
 The PLANT Team`,
-      type: 'reminder'
+      type: "reminder",
     },
     {
-      id: '2',
-      name: 'Invoice Payment Reminder',
-      subject: 'Payment Reminder: Invoice [INVOICE_NUMBER]',
+      id: "2",
+      name: "Invoice Payment Reminder",
+      subject: "Payment Reminder: Invoice [INVOICE_NUMBER]",
       body: `Dear [NAME],
 
 This is a reminder that invoice [INVOICE_NUMBER] for [AMOUNT] is currently unpaid.
@@ -139,12 +150,12 @@ Thank you for your prompt attention to this matter.
 
 Best regards,
 The PLANT Team`,
-      type: 'invoice'
+      type: "invoice",
     },
     {
-      id: '3',
-      name: 'Top Performer Recognition',
-      subject: 'Congratulations! You\'re This Month\'s Top Performer',
+      id: "3",
+      name: "Top Performer Recognition",
+      subject: "Congratulations! You're This Month's Top Performer",
       body: `Dear [NAME],
 
 Congratulations! We're delighted to announce that you've been recognized as this month's top performer in [CHAPTER_NAME].
@@ -155,8 +166,8 @@ Keep up the excellent work!
 
 Best regards,
 The PLANT Team`,
-      type: 'recognition'
-    }
+      type: "recognition",
+    },
   ];
 
   const sendNotification = async () => {
@@ -164,47 +175,65 @@ The PLANT Team`,
       setSending(true);
 
       // Validate required fields
-      if (!notificationConfig.subject.trim() || !notificationConfig.message.trim()) {
-        toast.error('Please provide both subject and message');
+      if (
+        !notificationConfig.subject.trim() ||
+        !notificationConfig.message.trim()
+      ) {
+        toast.error("Please provide both subject and message");
         return;
       }
 
-      const customEmails = notificationConfig.recipientType === 'custom' 
-        ? notificationConfig.customRecipients.split(',').map(e => e.trim()).filter(Boolean)
-        : undefined;
+      const customEmails =
+        notificationConfig.recipientType === "custom"
+          ? notificationConfig.customRecipients
+              .split(",")
+              .map((e) => e.trim())
+              .filter(Boolean)
+          : undefined;
 
-      const scheduledFor = notificationConfig.scheduleDate 
-        ? `${notificationConfig.scheduleDate}T${notificationConfig.scheduleTime || '09:00'}:00`
+      const scheduledFor = notificationConfig.scheduleDate
+        ? `${notificationConfig.scheduleDate}T${
+            notificationConfig.scheduleTime || "09:00"
+          }:00`
         : undefined;
 
       // Call the edge function
-      const { data, error } = await supabase.functions.invoke('send-bulk-notification', {
-        body: {
-          notificationType: notificationConfig.type,
-          recipientType: notificationConfig.recipientType,
-          subject: notificationConfig.subject,
-          message: notificationConfig.message,
-          chapterId: notificationConfig.chapterId || undefined,
-          role: notificationConfig.role || undefined,
-          customEmails,
-          scheduledFor
+      const { data, error } = await supabase.functions.invoke(
+        "send-bulk-notification",
+        {
+          body: {
+            notificationType: notificationConfig.type,
+            recipientType: notificationConfig.recipientType,
+            subject: notificationConfig.subject,
+            message: notificationConfig.message,
+            chapterId: notificationConfig.chapterId || undefined,
+            role: notificationConfig.role || undefined,
+            customEmails,
+            scheduledFor,
+          },
         }
-      });
+      );
 
       if (error) throw error;
 
       // Log the action
-      await adminService.logAdminAction('notification_sent', {
+      await adminService.logAdminAction("notification_sent", {
         type: notificationConfig.type,
         recipient_type: notificationConfig.recipientType,
         recipient_count: data.sent || data.recipientCount,
-        scheduled: data.scheduled || false
+        scheduled: data.scheduled || false,
       });
 
       if (data.scheduled) {
-        toast.success(`Notification scheduled for ${notificationConfig.scheduleDate} at ${notificationConfig.scheduleTime || '09:00'}`);
+        toast.success(
+          `Notification scheduled for ${notificationConfig.scheduleDate} at ${
+            notificationConfig.scheduleTime || "09:00"
+          }`
+        );
       } else {
-        toast.success(`Notification sent successfully to ${data.sent?.toLocaleString()} recipients`);
+        toast.success(
+          `Notification sent successfully to ${data.sent?.toLocaleString()} recipients`
+        );
         if (data.failed > 0) {
           toast.warning(`${data.failed} emails failed to send`);
         }
@@ -213,35 +242,36 @@ The PLANT Team`,
       // Reload stats and reset form
       await loadStats();
       setNotificationConfig({
-        type: 'reminder',
-        recipientType: 'all',
-        subject: '',
-        message: '',
-        chapterId: '',
-        role: '',
-        customRecipients: '',
-        scheduleDate: '',
-        scheduleTime: ''
+        type: "reminder",
+        recipientType: "all",
+        subject: "",
+        message: "",
+        chapterId: "",
+        role: "",
+        customRecipients: "",
+        scheduleDate: "",
+        scheduleTime: "",
       });
-
     } catch (error: any) {
-      console.error('Error sending notification:', error);
-      toast.error(error.message || 'Failed to send notification');
+      console.error("Error sending notification:", error);
+      toast.error(error.message || "Failed to send notification");
     } finally {
       setSending(false);
     }
   };
 
   const useTemplate = (template: NotificationTemplate) => {
-    setNotificationConfig(prev => ({
+    setNotificationConfig((prev) => ({
       ...prev,
       type: template.type,
       subject: template.subject,
-      message: template.body
+      message: template.body,
     }));
   };
 
-  const selectedType = notificationTypes.find(type => type.value === notificationConfig.type);
+  const selectedType = notificationTypes.find(
+    (type) => type.value === notificationConfig.type
+  );
   const SelectedIcon = selectedType?.icon || Mail;
 
   return (
@@ -263,7 +293,9 @@ The PLANT Team`,
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Sent This Month</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Sent This Month
+            </CardTitle>
             <Send className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -278,7 +310,9 @@ The PLANT Team`,
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-success">84.2%</div>
-            <p className="text-xs text-muted-foreground">Above industry average</p>
+            <p className="text-xs text-muted-foreground">
+              Above industry average
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -287,7 +321,9 @@ The PLANT Team`,
             <Clock className="h-4 w-4 text-warning" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-warning">{stats.scheduled}</div>
+            <div className="text-2xl font-bold text-warning">
+              {stats.scheduled}
+            </div>
             <p className="text-xs text-muted-foreground">Pending delivery</p>
           </CardContent>
         </Card>
@@ -321,7 +357,9 @@ The PLANT Team`,
               <label className="text-sm font-medium">Notification Type</label>
               <Select
                 value={notificationConfig.type}
-                onValueChange={(value: NotificationType) => setNotificationConfig(prev => ({ ...prev, type: value }))}
+                onValueChange={(value: NotificationType) =>
+                  setNotificationConfig((prev) => ({ ...prev, type: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select notification type" />
@@ -335,7 +373,9 @@ The PLANT Team`,
                           <Icon className="h-4 w-4" />
                           <div>
                             <div>{type.label}</div>
-                            <div className="text-xs text-muted-foreground">{type.description}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {type.description}
+                            </div>
                           </div>
                         </div>
                       </SelectItem>
@@ -350,7 +390,12 @@ The PLANT Team`,
               <label className="text-sm font-medium">Recipients</label>
               <Select
                 value={notificationConfig.recipientType}
-                onValueChange={(value: RecipientType) => setNotificationConfig(prev => ({ ...prev, recipientType: value }))}
+                onValueChange={(value: RecipientType) =>
+                  setNotificationConfig((prev) => ({
+                    ...prev,
+                    recipientType: value,
+                  }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select recipients" />
@@ -385,31 +430,40 @@ The PLANT Team`,
             </div>
 
             {/* Additional recipient options */}
-            {notificationConfig.recipientType === 'role' && (
+            {notificationConfig.recipientType === "role" && (
               <div className="space-y-2">
                 <label className="text-sm font-medium">Role</label>
                 <Select
                   value={notificationConfig.role}
-                  onValueChange={(value) => setNotificationConfig(prev => ({ ...prev, role: value }))}
+                  onValueChange={(value) =>
+                    setNotificationConfig((prev) => ({ ...prev, role: value }))
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="member">Members (1,233)</SelectItem>
-                    <SelectItem value="chapter_leader">Chapter Leaders (15)</SelectItem>
+                    <SelectItem value="chapter_leader">
+                      Chapter Leaders (15)
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             )}
 
-            {notificationConfig.recipientType === 'custom' && (
+            {notificationConfig.recipientType === "custom" && (
               <div className="space-y-2">
                 <label className="text-sm font-medium">Email Addresses</label>
                 <Textarea
                   placeholder="Enter email addresses separated by commas"
                   value={notificationConfig.customRecipients}
-                  onChange={(e) => setNotificationConfig(prev => ({ ...prev, customRecipients: e.target.value }))}
+                  onChange={(e) =>
+                    setNotificationConfig((prev) => ({
+                      ...prev,
+                      customRecipients: e.target.value,
+                    }))
+                  }
                 />
               </div>
             )}
@@ -420,7 +474,12 @@ The PLANT Team`,
               <Input
                 placeholder="Enter email subject"
                 value={notificationConfig.subject}
-                onChange={(e) => setNotificationConfig(prev => ({ ...prev, subject: e.target.value }))}
+                onChange={(e) =>
+                  setNotificationConfig((prev) => ({
+                    ...prev,
+                    subject: e.target.value,
+                  }))
+                }
               />
             </div>
 
@@ -430,7 +489,12 @@ The PLANT Team`,
               <Textarea
                 placeholder="Enter your message here..."
                 value={notificationConfig.message}
-                onChange={(e) => setNotificationConfig(prev => ({ ...prev, message: e.target.value }))}
+                onChange={(e) =>
+                  setNotificationConfig((prev) => ({
+                    ...prev,
+                    message: e.target.value,
+                  }))
+                }
                 rows={8}
               />
             </div>
@@ -438,12 +502,16 @@ The PLANT Team`,
             {/* Scheduling */}
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
-                <Checkbox 
+                <Checkbox
                   id="schedule"
                   checked={!!notificationConfig.scheduleDate}
                   onCheckedChange={(checked) => {
                     if (!checked) {
-                      setNotificationConfig(prev => ({ ...prev, scheduleDate: '', scheduleTime: '' }));
+                      setNotificationConfig((prev) => ({
+                        ...prev,
+                        scheduleDate: "",
+                        scheduleTime: "",
+                      }));
                     }
                   }}
                 />
@@ -452,18 +520,20 @@ The PLANT Team`,
                 </label>
               </div>
 
-              {notificationConfig.scheduleDate !== '' && (
+              {notificationConfig.scheduleDate !== "" && (
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Date</label>
                     <Input
                       type="date"
                       value={notificationConfig.scheduleDate}
-                      onChange={(e) => setNotificationConfig(prev => ({ 
-                        ...prev, 
-                        scheduleDate: e.target.value,
-                        scheduleTime: prev.scheduleTime || '09:00'
-                      }))}
+                      onChange={(e) =>
+                        setNotificationConfig((prev) => ({
+                          ...prev,
+                          scheduleDate: e.target.value,
+                          scheduleTime: prev.scheduleTime || "09:00",
+                        }))
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -471,7 +541,12 @@ The PLANT Team`,
                     <Input
                       type="time"
                       value={notificationConfig.scheduleTime}
-                      onChange={(e) => setNotificationConfig(prev => ({ ...prev, scheduleTime: e.target.value }))}
+                      onChange={(e) =>
+                        setNotificationConfig((prev) => ({
+                          ...prev,
+                          scheduleTime: e.target.value,
+                        }))
+                      }
                     />
                   </div>
                 </div>
@@ -479,9 +554,13 @@ The PLANT Team`,
             </div>
 
             {/* Send Button */}
-            <Button 
-              onClick={sendNotification} 
-              disabled={sending || !notificationConfig.subject.trim() || !notificationConfig.message.trim()}
+            <Button
+              onClick={sendNotification}
+              disabled={
+                sending ||
+                !notificationConfig.subject.trim() ||
+                !notificationConfig.message.trim()
+              }
               className="w-full"
             >
               {sending ? (
@@ -492,7 +571,9 @@ The PLANT Team`,
               ) : (
                 <>
                   <Send className="mr-2 h-4 w-4" />
-                  {notificationConfig.scheduleDate ? 'Schedule Notification' : 'Send Notification'}
+                  {notificationConfig.scheduleDate
+                    ? "Schedule Notification"
+                    : "Send Notification"}
                 </>
               )}
             </Button>
@@ -517,7 +598,9 @@ The PLANT Team`,
                         <h4 className="font-medium">{template.name}</h4>
                         <Badge variant="outline">{template.type}</Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">{template.subject}</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {template.subject}
+                      </p>
                       <p className="text-xs text-muted-foreground line-clamp-2">
                         {template.body.substring(0, 100)}...
                       </p>

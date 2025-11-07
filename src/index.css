@@ -47,7 +47,7 @@ All colors MUST be HSL.
     --navy-blue-end: 220 55% 30%;
     --light-gray-overlay: 0 0% 96%;
     --orange-tint: 25 85% 65%;
-    
+
     /* Updated semantic colors using MELNET palette */
     --success: 25 90% 55%;
     --success-foreground: 0 0% 100%;
@@ -55,7 +55,7 @@ All colors MUST be HSL.
     --warning-foreground: 0 0% 0%;
     --info: 215 60% 25%;
     --info-foreground: 0 0% 100%;
-    
+
     /* Metric specific colors updated to MELNET palette */
     --participation: 215 60% 25%;
     --learning: 220 55% 30%;
@@ -64,8 +64,16 @@ All colors MUST be HSL.
     --trade: 215 60% 35%;
 
     /* MELNET Gradients */
-    --gradient-navy: linear-gradient(135deg, hsl(215 60% 25%), hsl(220 55% 30%));
-    --gradient-golden: linear-gradient(135deg, hsl(25 90% 55%), hsl(25 85% 65%));
+    --gradient-navy: linear-gradient(
+      135deg,
+      hsl(215 60% 25%),
+      hsl(220 55% 30%)
+    );
+    --gradient-golden: linear-gradient(
+      135deg,
+      hsl(25 90% 55%),
+      hsl(25 85% 65%)
+    );
 
     --radius: 0.5rem;
 
@@ -126,7 +134,7 @@ All colors MUST be HSL.
     --navy-blue-end: 220 55% 30%;
     --light-gray-overlay: 0 0% 20%;
     --orange-tint: 25 85% 65%;
-    
+
     /* Updated semantic colors - dark mode */
     --success: 25 90% 55%;
     --success-foreground: 0 0% 0%;
@@ -134,7 +142,7 @@ All colors MUST be HSL.
     --warning-foreground: 0 0% 0%;
     --info: 215 55% 20%;
     --info-foreground: 0 0% 100%;
-    
+
     /* Metric specific colors - dark mode */
     --participation: 215 60% 40%;
     --learning: 220 55% 45%;

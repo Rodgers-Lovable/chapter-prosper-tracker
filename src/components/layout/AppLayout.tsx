@@ -1,8 +1,8 @@
-import React from 'react';
-import { useAuth } from '@/lib/auth';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import React from "react";
+import { useAuth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,8 +10,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { TrendingUp, LogOut, User, Settings } from 'lucide-react';
+} from "@/components/ui/dropdown-menu";
+import { TrendingUp, LogOut, User, Settings } from "lucide-react";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -22,25 +22,25 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
-      case 'administrator':
-        return 'destructive';
-      case 'chapter_leader':
-        return 'secondary';
+      case "administrator":
+        return "destructive";
+      case "chapter_leader":
+        return "secondary";
       default:
-        return 'outline';
+        return "outline";
     }
   };
 
   const formatRole = (role: string) => {
-    return role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+    return role.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
   const getInitials = (name: string | null) => {
-    if (!name) return 'U';
+    if (!name) return "U";
     return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
       .toUpperCase()
       .slice(0, 2);
   };
@@ -66,7 +66,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Button
+                      variant="ghost"
+                      className="relative h-10 w-10 rounded-full"
+                    >
                       <Avatar className="h-10 w-10">
                         <AvatarFallback>
                           {getInitials(profile.full_name)}
@@ -78,7 +81,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">
-                          {profile.full_name || 'User'}
+                          {profile.full_name || "User"}
                         </p>
                         <p className="text-xs leading-none text-muted-foreground">
                           {profile.email}
@@ -87,7 +90,10 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem className="md:hidden">
-                      <Badge variant={getRoleBadgeVariant(profile.role)} className="text-xs">
+                      <Badge
+                        variant={getRoleBadgeVariant(profile.role)}
+                        className="text-xs"
+                      >
                         {formatRole(profile.role)}
                       </Badge>
                     </DropdownMenuItem>
@@ -113,9 +119,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1">
-        {children}
-      </main>
+      <main className="flex-1">{children}</main>
     </div>
   );
 };

@@ -1,17 +1,23 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { 
+import React, { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { 
-  FileText, 
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  FileText,
   Download,
   Calendar,
   BarChart3,
@@ -20,27 +26,27 @@ import {
   DollarSign,
   TrendingUp,
   FileSpreadsheet,
-  File
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { adminService } from '@/lib/services/adminService';
-import { reportService } from '@/lib/services/reportService';
-import { useEffect } from 'react';
+  File,
+} from "lucide-react";
+import { toast } from "sonner";
+import { adminService } from "@/lib/services/adminService";
+import { reportService } from "@/lib/services/reportService";
+import { useEffect } from "react";
 
-type ReportType = 'metrics' | 'trades' | 'financial' | 'members' | 'chapters';
-type ReportPeriod = 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'custom';
-type ReportFormat = 'excel' | 'pdf';
+type ReportType = "metrics" | "trades" | "financial" | "members" | "chapters";
+type ReportPeriod = "weekly" | "monthly" | "quarterly" | "yearly" | "custom";
+type ReportFormat = "excel" | "pdf";
 
 const ReportsManagement: React.FC = () => {
   const [generating, setGenerating] = useState(false);
   const [recentReports, setRecentReports] = useState<any[]>([]);
   const [reportConfig, setReportConfig] = useState({
-    type: 'metrics' as ReportType,
-    period: 'monthly' as ReportPeriod,
-    format: 'excel' as ReportFormat,
-    startDate: '',
-    endDate: '',
-    chapterId: ''
+    type: "metrics" as ReportType,
+    period: "monthly" as ReportPeriod,
+    format: "excel" as ReportFormat,
+    startDate: "",
+    endDate: "",
+    chapterId: "",
   });
 
   useEffect(() => {
@@ -52,49 +58,49 @@ const ReportsManagement: React.FC = () => {
       const reports = await reportService.getRecentReports(5);
       setRecentReports(reports || []);
     } catch (error) {
-      console.error('Error loading recent reports:', error);
+      console.error("Error loading recent reports:", error);
     }
   };
 
   const reportTypes = [
-    { 
-      value: 'metrics', 
-      label: 'PLANT Metrics Report', 
-      description: 'Member metrics, growth trends, and performance analytics',
-      icon: BarChart3
+    {
+      value: "metrics",
+      label: "PLANT Metrics Report",
+      description: "Member metrics, growth trends, and performance analytics",
+      icon: BarChart3,
     },
-    { 
-      value: 'trades', 
-      label: 'Trade Activity Report', 
-      description: 'All trade transactions, referrals, and business exchanges',
-      icon: TrendingUp
+    {
+      value: "trades",
+      label: "Trade Activity Report",
+      description: "All trade transactions, referrals, and business exchanges",
+      icon: TrendingUp,
     },
-    { 
-      value: 'financial', 
-      label: 'Financial Summary Report', 
-      description: 'Revenue, payments, invoices, and financial analytics',
-      icon: DollarSign
+    {
+      value: "financial",
+      label: "Financial Summary Report",
+      description: "Revenue, payments, invoices, and financial analytics",
+      icon: DollarSign,
     },
-    { 
-      value: 'members', 
-      label: 'Member Directory Report', 
-      description: 'Complete member listings with business information',
-      icon: Users
+    {
+      value: "members",
+      label: "Member Directory Report",
+      description: "Complete member listings with business information",
+      icon: Users,
     },
-    { 
-      value: 'chapters', 
-      label: 'Chapter Performance Report', 
-      description: 'Chapter-by-chapter performance and comparisons',
-      icon: Building
-    }
+    {
+      value: "chapters",
+      label: "Chapter Performance Report",
+      description: "Chapter-by-chapter performance and comparisons",
+      icon: Building,
+    },
   ];
 
   const reportPeriods = [
-    { value: 'weekly', label: 'Weekly' },
-    { value: 'monthly', label: 'Monthly' },
-    { value: 'quarterly', label: 'Quarterly' },
-    { value: 'yearly', label: 'Yearly' },
-    { value: 'custom', label: 'Custom Date Range' }
+    { value: "weekly", label: "Weekly" },
+    { value: "monthly", label: "Monthly" },
+    { value: "quarterly", label: "Quarterly" },
+    { value: "yearly", label: "Yearly" },
+    { value: "custom", label: "Custom Date Range" },
   ];
 
   const generateReport = async () => {
@@ -102,35 +108,60 @@ const ReportsManagement: React.FC = () => {
       setGenerating(true);
 
       // Validate custom date range
-      if (reportConfig.period === 'custom' && (!reportConfig.startDate || !reportConfig.endDate)) {
-        toast.error('Please select both start and end dates for custom range');
+      if (
+        reportConfig.period === "custom" &&
+        (!reportConfig.startDate || !reportConfig.endDate)
+      ) {
+        toast.error("Please select both start and end dates for custom range");
         return;
       }
 
       // Calculate date range based on period
       let startDate: string;
-      let endDate: string = new Date().toISOString().split('T')[0];
+      let endDate: string = new Date().toISOString().split("T")[0];
 
-      if (reportConfig.period === 'custom') {
+      if (reportConfig.period === "custom") {
         startDate = reportConfig.startDate;
         endDate = reportConfig.endDate;
       } else {
         const now = new Date();
         switch (reportConfig.period) {
-          case 'weekly':
-            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+          case "weekly":
+            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+              .toISOString()
+              .split("T")[0];
             break;
-          case 'monthly':
-            startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()).toISOString().split('T')[0];
+          case "monthly":
+            startDate = new Date(
+              now.getFullYear(),
+              now.getMonth() - 1,
+              now.getDate()
+            )
+              .toISOString()
+              .split("T")[0];
             break;
-          case 'quarterly':
-            startDate = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate()).toISOString().split('T')[0];
+          case "quarterly":
+            startDate = new Date(
+              now.getFullYear(),
+              now.getMonth() - 3,
+              now.getDate()
+            )
+              .toISOString()
+              .split("T")[0];
             break;
-          case 'yearly':
-            startDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()).toISOString().split('T')[0];
+          case "yearly":
+            startDate = new Date(
+              now.getFullYear() - 1,
+              now.getMonth(),
+              now.getDate()
+            )
+              .toISOString()
+              .split("T")[0];
             break;
           default:
-            startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+              .toISOString()
+              .split("T")[0];
         }
       }
 
@@ -143,28 +174,31 @@ const ReportsManagement: React.FC = () => {
       );
 
       // Log the action
-      await adminService.logAdminAction('report_generated', {
+      await adminService.logAdminAction("report_generated", {
         report_type: reportConfig.type,
         period: reportConfig.period,
         format: reportConfig.format,
         date_range: { startDate, endDate },
-        file_name: fileName
+        file_name: fileName,
       });
-      
-      toast.success(`Report "${fileName}" generated and downloaded successfully!`);
-      
+
+      toast.success(
+        `Report "${fileName}" generated and downloaded successfully!`
+      );
+
       // Reload recent reports
       await loadRecentReports();
-
     } catch (error: any) {
-      console.error('Error generating report:', error);
-      toast.error(error.message || 'Failed to generate report');
+      console.error("Error generating report:", error);
+      toast.error(error.message || "Failed to generate report");
     } finally {
       setGenerating(false);
     }
   };
 
-  const selectedReportType = reportTypes.find(type => type.value === reportConfig.type);
+  const selectedReportType = reportTypes.find(
+    (type) => type.value === reportConfig.type
+  );
   const SelectedIcon = selectedReportType?.icon || FileText;
 
   return (
@@ -186,7 +220,9 @@ const ReportsManagement: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Reports Generated</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Reports Generated
+            </CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -216,7 +252,9 @@ const ReportsManagement: React.FC = () => {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Scheduled Reports</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Scheduled Reports
+            </CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -242,7 +280,9 @@ const ReportsManagement: React.FC = () => {
               <label className="text-sm font-medium">Report Type</label>
               <Select
                 value={reportConfig.type}
-                onValueChange={(value: ReportType) => setReportConfig(prev => ({ ...prev, type: value }))}
+                onValueChange={(value: ReportType) =>
+                  setReportConfig((prev) => ({ ...prev, type: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select report type" />
@@ -268,7 +308,9 @@ const ReportsManagement: React.FC = () => {
               <label className="text-sm font-medium">Time Period</label>
               <Select
                 value={reportConfig.period}
-                onValueChange={(value: ReportPeriod) => setReportConfig(prev => ({ ...prev, period: value }))}
+                onValueChange={(value: ReportPeriod) =>
+                  setReportConfig((prev) => ({ ...prev, period: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select time period" />
@@ -284,14 +326,19 @@ const ReportsManagement: React.FC = () => {
             </div>
 
             {/* Custom Date Range */}
-            {reportConfig.period === 'custom' && (
+            {reportConfig.period === "custom" && (
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Start Date</label>
                   <Input
                     type="date"
                     value={reportConfig.startDate}
-                    onChange={(e) => setReportConfig(prev => ({ ...prev, startDate: e.target.value }))}
+                    onChange={(e) =>
+                      setReportConfig((prev) => ({
+                        ...prev,
+                        startDate: e.target.value,
+                      }))
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -299,7 +346,12 @@ const ReportsManagement: React.FC = () => {
                   <Input
                     type="date"
                     value={reportConfig.endDate}
-                    onChange={(e) => setReportConfig(prev => ({ ...prev, endDate: e.target.value }))}
+                    onChange={(e) =>
+                      setReportConfig((prev) => ({
+                        ...prev,
+                        endDate: e.target.value,
+                      }))
+                    }
                   />
                 </div>
               </div>
@@ -310,7 +362,9 @@ const ReportsManagement: React.FC = () => {
               <label className="text-sm font-medium">Export Format</label>
               <Select
                 value={reportConfig.format}
-                onValueChange={(value: ReportFormat) => setReportConfig(prev => ({ ...prev, format: value }))}
+                onValueChange={(value: ReportFormat) =>
+                  setReportConfig((prev) => ({ ...prev, format: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select export format" />
@@ -333,8 +387,8 @@ const ReportsManagement: React.FC = () => {
             </div>
 
             {/* Generate Button */}
-            <Button 
-              onClick={generateReport} 
+            <Button
+              onClick={generateReport}
               disabled={generating}
               className="w-full"
             >
@@ -360,9 +414,7 @@ const ReportsManagement: React.FC = () => {
               <SelectedIcon className="h-5 w-5" />
               Report Preview
             </CardTitle>
-            <CardDescription>
-              {selectedReportType?.description}
-            </CardDescription>
+            <CardDescription>{selectedReportType?.description}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -381,21 +433,25 @@ const ReportsManagement: React.FC = () => {
                     <span className="text-muted-foreground">Format:</span>
                     <span className="uppercase">{reportConfig.format}</span>
                   </div>
-                  {reportConfig.period === 'custom' && reportConfig.startDate && reportConfig.endDate && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Date Range:</span>
-                      <span className="text-xs">
-                        {reportConfig.startDate} to {reportConfig.endDate}
-                      </span>
-                    </div>
-                  )}
+                  {reportConfig.period === "custom" &&
+                    reportConfig.startDate &&
+                    reportConfig.endDate && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Date Range:
+                        </span>
+                        <span className="text-xs">
+                          {reportConfig.startDate} to {reportConfig.endDate}
+                        </span>
+                      </div>
+                    )}
                 </div>
               </div>
 
               <div className="p-4 border rounded-lg">
                 <h4 className="font-medium mb-2">Estimated Content</h4>
                 <div className="space-y-1 text-sm text-muted-foreground">
-                  {reportConfig.type === 'metrics' && (
+                  {reportConfig.type === "metrics" && (
                     <>
                       <p>• Member PLANT metrics summary</p>
                       <p>• Growth trends and analytics</p>
@@ -403,7 +459,7 @@ const ReportsManagement: React.FC = () => {
                       <p>• Top performers ranking</p>
                     </>
                   )}
-                  {reportConfig.type === 'trades' && (
+                  {reportConfig.type === "trades" && (
                     <>
                       <p>• All trade transactions</p>
                       <p>• Referral network analysis</p>
@@ -411,7 +467,7 @@ const ReportsManagement: React.FC = () => {
                       <p>• Revenue generation breakdown</p>
                     </>
                   )}
-                  {reportConfig.type === 'financial' && (
+                  {reportConfig.type === "financial" && (
                     <>
                       <p>• Revenue and payment summary</p>
                       <p>• Invoice status overview</p>
@@ -419,7 +475,7 @@ const ReportsManagement: React.FC = () => {
                       <p>• Chapter-wise breakdowns</p>
                     </>
                   )}
-                  {reportConfig.type === 'members' && (
+                  {reportConfig.type === "members" && (
                     <>
                       <p>• Complete member directory</p>
                       <p>• Business information</p>
@@ -427,7 +483,7 @@ const ReportsManagement: React.FC = () => {
                       <p>• Chapter assignments</p>
                     </>
                   )}
-                  {reportConfig.type === 'chapters' && (
+                  {reportConfig.type === "chapters" && (
                     <>
                       <p>• Chapter performance metrics</p>
                       <p>• Member growth by chapter</p>
@@ -453,12 +509,17 @@ const ReportsManagement: React.FC = () => {
         <CardContent>
           <div className="space-y-4">
             {recentReports.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">No reports generated yet</p>
+              <p className="text-center text-muted-foreground py-8">
+                No reports generated yet
+              </p>
             ) : (
               recentReports.map((report, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-4 border rounded-lg"
+                >
                   <div className="flex items-center gap-3">
-                    {report.format === 'excel' ? (
+                    {report.format === "excel" ? (
                       <FileSpreadsheet className="h-8 w-8 text-green-600" />
                     ) : (
                       <File className="h-8 w-8 text-red-600" />

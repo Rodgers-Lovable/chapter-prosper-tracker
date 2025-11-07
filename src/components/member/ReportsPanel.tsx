@@ -1,13 +1,25 @@
-import React, { useState, useRef } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileText, Download, FileSpreadsheet, Loader2 } from 'lucide-react';
-import { useAuth } from '@/lib/auth';
-import { MetricEntry, MetricsSummary } from '@/lib/services/metricsService';
-import { TradeWithProfiles } from '@/lib/services/tradesService';
-import { reportService } from '@/lib/services/reportService';
-import { toast } from '@/hooks/use-toast';
+import React, { useState, useRef } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { FileText, Download, FileSpreadsheet, Loader2 } from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import { MetricEntry, MetricsSummary } from "@/lib/services/metricsService";
+import { TradeWithProfiles } from "@/lib/services/tradesService";
+import { reportService } from "@/lib/services/reportService";
+import { toast } from "@/hooks/use-toast";
 
 interface ReportsPanelProps {
   metrics: MetricEntry[];
@@ -16,48 +28,52 @@ interface ReportsPanelProps {
   chartRef?: React.RefObject<HTMLDivElement>;
 }
 
-const ReportsPanel: React.FC<ReportsPanelProps> = ({ 
-  metrics, 
-  trades, 
+const ReportsPanel: React.FC<ReportsPanelProps> = ({
+  metrics,
+  trades,
   summary,
-  chartRef
+  chartRef,
 }) => {
   const { profile } = useAuth();
   const [isExporting, setIsExporting] = useState(false);
-  const [exportType, setExportType] = useState<'excel' | 'pdf'>('excel');
+  const [exportType, setExportType] = useState<"excel" | "pdf">("excel");
 
   const handleExport = async () => {
     if (!profile) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Profile not loaded. Please refresh and try again."
+        description: "Profile not loaded. Please refresh and try again.",
       });
       return;
     }
 
     setIsExporting(true);
     try {
-      if (exportType === 'excel') {
+      if (exportType === "excel") {
         await reportService.exportToExcel(profile, metrics, trades, summary);
         toast({
           title: "Success",
-          description: "Excel report downloaded successfully!"
+          description: "Excel report downloaded successfully!",
         });
       } else {
         const chartElement = chartRef?.current;
-        await reportService.exportToPDF(profile, summary, chartElement || undefined);
+        await reportService.exportToPDF(
+          profile,
+          summary,
+          chartElement || undefined
+        );
         toast({
           title: "Success",
-          description: "PDF report downloaded successfully!"
+          description: "PDF report downloaded successfully!",
         });
       }
     } catch (error) {
-      console.error('Export error:', error);
+      console.error("Export error:", error);
       toast({
         variant: "destructive",
         title: "Export Failed",
-        description: "Failed to generate report. Please try again."
+        description: "Failed to generate report. Please try again.",
       });
     } finally {
       setIsExporting(false);
@@ -91,7 +107,9 @@ const ReportsPanel: React.FC<ReportsPanelProps> = ({
             <div className="text-sm text-muted-foreground">Total Entries</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold">{getTotalMetrics().toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              {getTotalMetrics().toLocaleString()}
+            </div>
             <div className="text-sm text-muted-foreground">Total Points</div>
           </div>
           <div className="text-center">
@@ -99,7 +117,9 @@ const ReportsPanel: React.FC<ReportsPanelProps> = ({
             <div className="text-sm text-muted-foreground">Total Trades</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold">KES {getTotalTrades().toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              KES {getTotalTrades().toLocaleString()}
+            </div>
             <div className="text-sm text-muted-foreground">Trade Value</div>
           </div>
         </div>
@@ -107,7 +127,10 @@ const ReportsPanel: React.FC<ReportsPanelProps> = ({
         {/* Export Controls */}
         <div className="flex items-center gap-4">
           <div className="flex-1">
-            <Select value={exportType} onValueChange={(value) => setExportType(value as 'excel' | 'pdf')}>
+            <Select
+              value={exportType}
+              onValueChange={(value) => setExportType(value as "excel" | "pdf")}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -127,8 +150,8 @@ const ReportsPanel: React.FC<ReportsPanelProps> = ({
               </SelectContent>
             </Select>
           </div>
-          <Button 
-            onClick={handleExport} 
+          <Button
+            onClick={handleExport}
             disabled={isExporting || metrics.length === 0}
             className="min-w-32"
           >
@@ -148,9 +171,11 @@ const ReportsPanel: React.FC<ReportsPanelProps> = ({
 
         {/* Report Info */}
         <div className="text-sm text-muted-foreground space-y-2">
-          {exportType === 'excel' ? (
+          {exportType === "excel" ? (
             <div>
-              <p><strong>Excel Report includes:</strong></p>
+              <p>
+                <strong>Excel Report includes:</strong>
+              </p>
               <ul className="list-disc list-inside space-y-1 mt-2">
                 <li>Summary sheet with total metrics by category</li>
                 <li>Detailed metrics history with dates and descriptions</li>
@@ -160,7 +185,9 @@ const ReportsPanel: React.FC<ReportsPanelProps> = ({
             </div>
           ) : (
             <div>
-              <p><strong>PDF Report includes:</strong></p>
+              <p>
+                <strong>PDF Report includes:</strong>
+              </p>
               <ul className="list-disc list-inside space-y-1 mt-2">
                 <li>Summary of total metrics by category</li>
                 <li>Visual chart of metrics trend (if available)</li>

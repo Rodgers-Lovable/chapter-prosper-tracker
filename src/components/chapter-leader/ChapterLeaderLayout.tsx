@@ -1,11 +1,11 @@
-import React from 'react';
-import { useAuth } from '@/lib/auth';
-import { Navigate, useLocation, Link } from 'react-router-dom';
-import AppLayout from '@/components/layout/AppLayout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { useAuth } from "@/lib/auth";
+import { Navigate, useLocation, Link } from "react-router-dom";
+import AppLayout from "@/components/layout/AppLayout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   Users,
@@ -13,8 +13,8 @@ import {
   DollarSign,
   FileText,
   Bell,
-  TrendingUp
-} from 'lucide-react';
+  TrendingUp,
+} from "lucide-react";
 
 interface ChapterLeaderLayoutProps {
   children: React.ReactNode;
@@ -22,52 +22,58 @@ interface ChapterLeaderLayoutProps {
 
 const navigationItems = [
   {
-    name: 'Dashboard',
-    path: '/chapter-leader',
+    name: "Dashboard",
+    path: "/chapter-leader",
     icon: LayoutDashboard,
-    description: 'Chapter overview and metrics'
+    description: "Chapter overview and metrics",
   },
   {
-    name: 'Members',
-    path: '/chapter-leader/members',
+    name: "Members",
+    path: "/chapter-leader/members",
     icon: Users,
-    description: 'Manage chapter members'
+    description: "Manage chapter members",
   },
   {
-    name: 'Metrics',
-    path: '/chapter-leader/metrics',
+    name: "Metrics",
+    path: "/chapter-leader/metrics",
     icon: BarChart3,
-    description: 'PLANT metrics monitoring'
+    description: "PLANT metrics monitoring",
   },
   {
-    name: 'Trades',
-    path: '/chapter-leader/trades',
+    name: "Trades",
+    path: "/chapter-leader/trades",
     icon: DollarSign,
-    description: 'Trade and payment oversight'
+    description: "Trade and payment oversight",
   },
   {
-    name: 'Reports',
-    path: '/chapter-leader/reports',
+    name: "Reports",
+    path: "/chapter-leader/reports",
     icon: FileText,
-    description: 'Generate chapter reports'
+    description: "Generate chapter reports",
   },
   {
-    name: 'Notifications',
-    path: '/chapter-leader/notifications',
+    name: "Notifications",
+    path: "/chapter-leader/notifications",
     icon: Bell,
-    description: 'Send member reminders'
-  }
+    description: "Send member reminders",
+  },
 ];
 
-const ChapterLeaderLayout: React.FC<ChapterLeaderLayoutProps> = ({ children }) => {
+const ChapterLeaderLayout: React.FC<ChapterLeaderLayoutProps> = ({
+  children,
+}) => {
   const { profile, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Loading...
+      </div>
+    );
   }
 
-  if (!profile || profile.role !== 'chapter_leader') {
+  if (!profile || profile.role !== "chapter_leader") {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -84,16 +90,18 @@ const ChapterLeaderLayout: React.FC<ChapterLeaderLayoutProps> = ({ children }) =
               <h2 className="font-semibold">Chapter Leader</h2>
             </div>
             <Badge variant="secondary" className="text-xs">
-              {profile.business_name || 'Chapter Management'}
+              {profile.business_name || "Chapter Management"}
             </Badge>
           </div>
 
           <nav className="space-y-2">
             {navigationItems.map((item) => {
               const Icon = item.icon;
-              const isActive = currentPath === item.path || 
-                (item.path !== '/chapter-leader' && currentPath.startsWith(item.path));
-              
+              const isActive =
+                currentPath === item.path ||
+                (item.path !== "/chapter-leader" &&
+                  currentPath.startsWith(item.path));
+
               return (
                 <Link key={item.path} to={item.path} className="block">
                   <Button
@@ -106,10 +114,14 @@ const ChapterLeaderLayout: React.FC<ChapterLeaderLayoutProps> = ({ children }) =
                     <Icon className="mr-3 h-4 w-4" />
                     <div className="text-left">
                       <div className="font-medium">{item.name}</div>
-                      <div className={cn(
-                        "text-xs",
-                        isActive ? "text-primary-foreground/70" : "text-muted-foreground"
-                      )}>
+                      <div
+                        className={cn(
+                          "text-xs",
+                          isActive
+                            ? "text-primary-foreground/70"
+                            : "text-muted-foreground"
+                        )}
+                      >
                         {item.description}
                       </div>
                     </div>
@@ -142,9 +154,7 @@ const ChapterLeaderLayout: React.FC<ChapterLeaderLayoutProps> = ({ children }) =
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-auto">
-          {children}
-        </main>
+        <main className="flex-1 overflow-auto">{children}</main>
       </div>
     </AppLayout>
   );

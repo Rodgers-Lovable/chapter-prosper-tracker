@@ -313,7 +313,7 @@ const ChapterManagement: React.FC = () => {
                   >
                     Cancel
                   </Button>
-                  
+
                   <Button type="submit" disabled={loadingChapters}>
                     {loadingChapters && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

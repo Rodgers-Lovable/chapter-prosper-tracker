@@ -1,29 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/lib/auth';
-import ChapterLeaderLayout from '@/components/chapter-leader/ChapterLeaderLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import LoadingSpinner from '@/components/ui/loading-spinner';
-import { useToast } from '@/hooks/use-toast';
-import { 
-  FileText, 
-  Download, 
+import React, { useState, useEffect } from "react";
+import { useAuth } from "@/lib/auth";
+import ChapterLeaderLayout from "@/components/chapter-leader/ChapterLeaderLayout";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import LoadingSpinner from "@/components/ui/loading-spinner";
+import { useToast } from "@/hooks/use-toast";
+import {
+  FileText,
+  Download,
   Calendar as CalendarIcon,
   BarChart3,
   Users,
   DollarSign,
   TrendingUp,
   FileDown,
-  Printer
-} from 'lucide-react';
-import { chapterLeaderService, ChapterStats } from '@/lib/services/chapterLeaderService';
-import { format, subMonths, startOfMonth, endOfMonth } from 'date-fns';
-import { cn } from '@/lib/utils';
+  Printer,
+} from "lucide-react";
+import {
+  chapterLeaderService,
+  ChapterStats,
+} from "@/lib/services/chapterLeaderService";
+import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const ChapterReports = () => {
   const { profile } = useAuth();
@@ -31,8 +50,10 @@ const ChapterReports = () => {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [stats, setStats] = useState<ChapterStats | null>(null);
-  const [reportType, setReportType] = useState<'monthly' | 'quarterly' | 'annual'>('monthly');
-  const [reportFormat, setReportFormat] = useState<'pdf' | 'excel'>('pdf');
+  const [reportType, setReportType] = useState<
+    "monthly" | "quarterly" | "annual"
+  >("monthly");
+  const [reportFormat, setReportFormat] = useState<"pdf" | "excel">("pdf");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [datePickerOpen, setDatePickerOpen] = useState(false);
 
@@ -42,17 +63,19 @@ const ChapterReports = () => {
 
       setLoading(true);
       try {
-        const result = await chapterLeaderService.getChapterStats(profile.chapter_id);
+        const result = await chapterLeaderService.getChapterStats(
+          profile.chapter_id
+        );
         if (result.error) {
           throw new Error(result.error);
         }
         setStats(result.data);
       } catch (error) {
-        console.error('Error fetching chapter stats:', error);
+        console.error("Error fetching chapter stats:", error);
         toast({
           title: "Error loading chapter data",
           description: "Please try refreshing the page",
-          variant: "destructive"
+          variant: "destructive",
         });
       } finally {
         setLoading(false);
@@ -63,42 +86,50 @@ const ChapterReports = () => {
   }, [profile?.chapter_id, toast]);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
   const getDateRange = () => {
     switch (reportType) {
-      case 'monthly':
+      case "monthly":
         return {
           start: startOfMonth(selectedDate),
           end: endOfMonth(selectedDate),
-          label: format(selectedDate, 'MMMM yyyy')
+          label: format(selectedDate, "MMMM yyyy"),
         };
-      case 'quarterly':
+      case "quarterly":
         const quarter = Math.floor(selectedDate.getMonth() / 3);
-        const quarterStart = new Date(selectedDate.getFullYear(), quarter * 3, 1);
-        const quarterEnd = new Date(selectedDate.getFullYear(), (quarter + 1) * 3, 0);
+        const quarterStart = new Date(
+          selectedDate.getFullYear(),
+          quarter * 3,
+          1
+        );
+        const quarterEnd = new Date(
+          selectedDate.getFullYear(),
+          (quarter + 1) * 3,
+          0
+        );
         return {
           start: quarterStart,
           end: quarterEnd,
-          label: `Q${quarter + 1} ${selectedDate.getFullYear()}`
+          label: `Q${quarter + 1} ${selectedDate.getFullYear()}`,
         };
-      case 'annual':
+      case "annual":
         return {
           start: new Date(selectedDate.getFullYear(), 0, 1),
           end: new Date(selectedDate.getFullYear(), 11, 31),
-          label: selectedDate.getFullYear().toString()
+          label: selectedDate.getFullYear().toString(),
         };
       default:
         return {
           start: startOfMonth(selectedDate),
           end: endOfMonth(selectedDate),
-          label: format(selectedDate, 'MMMM yyyy')
+          label: format(selectedDate, "MMMM yyyy"),
         };
     }
   };
@@ -109,25 +140,26 @@ const ChapterReports = () => {
     setGenerating(true);
     try {
       const dateRange = getDateRange();
-      
+
       // Simulate report generation
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       toast({
         title: "Report generated successfully",
-        description: `${reportType.charAt(0).toUpperCase() + reportType.slice(1)} report for ${dateRange.label} has been generated`,
-        variant: "default"
+        description: `${
+          reportType.charAt(0).toUpperCase() + reportType.slice(1)
+        } report for ${dateRange.label} has been generated`,
+        variant: "default",
       });
 
       // Here you would typically trigger a download
       // For now, we'll just show a success message
-      
     } catch (error) {
-      console.error('Error generating report:', error);
+      console.error("Error generating report:", error);
       toast({
         title: "Error generating report",
         description: "Please try again later",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setGenerating(false);
@@ -148,50 +180,51 @@ const ChapterReports = () => {
 
   const reportTypes = [
     {
-      id: 'monthly' as const,
-      name: 'Monthly Report',
-      description: 'Detailed month-by-month analysis',
-      icon: CalendarIcon
+      id: "monthly" as const,
+      name: "Monthly Report",
+      description: "Detailed month-by-month analysis",
+      icon: CalendarIcon,
     },
     {
-      id: 'quarterly' as const,
-      name: 'Quarterly Report',
-      description: 'Quarterly performance summary',
-      icon: BarChart3
+      id: "quarterly" as const,
+      name: "Quarterly Report",
+      description: "Quarterly performance summary",
+      icon: BarChart3,
     },
     {
-      id: 'annual' as const,
-      name: 'Annual Report',
-      description: 'Comprehensive yearly overview',
-      icon: TrendingUp
-    }
+      id: "annual" as const,
+      name: "Annual Report",
+      description: "Comprehensive yearly overview",
+      icon: TrendingUp,
+    },
   ];
 
   const reportSections = [
     {
-      title: 'Chapter Overview',
-      description: 'Member count, growth metrics, and participation rates',
+      title: "Chapter Overview",
+      description: "Member count, growth metrics, and participation rates",
       icon: Users,
-      color: 'text-primary'
+      color: "text-primary",
     },
     {
-      title: 'PLANT Metrics Analysis',
-      description: 'Detailed breakdown of Participation, Learning, Activity, Networking, and Trade metrics',
+      title: "PLANT Metrics Analysis",
+      description:
+        "Detailed breakdown of Participation, Learning, Activity, Networking, and Trade metrics",
       icon: BarChart3,
-      color: 'text-learning'
+      color: "text-learning",
     },
     {
-      title: 'Financial Summary',
-      description: 'Trade values, payment status, and revenue analysis',
+      title: "Financial Summary",
+      description: "Trade values, payment status, and revenue analysis",
       icon: DollarSign,
-      color: 'text-trade'
+      color: "text-trade",
     },
     {
-      title: 'Member Performance',
-      description: 'Individual member rankings and achievement highlights',
+      title: "Member Performance",
+      description: "Individual member rankings and achievement highlights",
       icon: TrendingUp,
-      color: 'text-success'
-    }
+      color: "text-success",
+    },
   ];
 
   return (
@@ -233,7 +266,7 @@ const ChapterReports = () => {
                     {reportTypes.map((type) => {
                       const Icon = type.icon;
                       const isSelected = reportType === type.id;
-                      
+
                       return (
                         <Button
                           key={type.id}
@@ -258,7 +291,10 @@ const ChapterReports = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Time Period</label>
-                    <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                    <Popover
+                      open={datePickerOpen}
+                      onOpenChange={setDatePickerOpen}
+                    >
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
@@ -289,7 +325,12 @@ const ChapterReports = () => {
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Export Format</label>
-                    <Select value={reportFormat} onValueChange={(value: 'pdf' | 'excel') => setReportFormat(value)}>
+                    <Select
+                      value={reportFormat}
+                      onValueChange={(value: "pdf" | "excel") =>
+                        setReportFormat(value)
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -326,7 +367,10 @@ const ChapterReports = () => {
                   {reportSections.map((section, index) => {
                     const Icon = section.icon;
                     return (
-                      <div key={index} className="flex items-start gap-3 p-3 rounded-lg border">
+                      <div
+                        key={index}
+                        className="flex items-start gap-3 p-3 rounded-lg border"
+                      >
                         <Icon className={`h-5 w-5 mt-0.5 ${section.color}`} />
                         <div className="flex-1">
                           <h4 className="font-medium">{section.title}</h4>
@@ -344,7 +388,7 @@ const ChapterReports = () => {
             {/* Generate Button */}
             <Card>
               <CardContent className="pt-6">
-                <Button 
+                <Button
                   onClick={handleGenerateReport}
                   disabled={generating}
                   className="w-full"
@@ -358,7 +402,10 @@ const ChapterReports = () => {
                   ) : (
                     <>
                       <Download className="mr-2 h-4 w-4" />
-                      Generate {reportType.charAt(0).toUpperCase() + reportType.slice(1)} Report
+                      Generate{" "}
+                      {reportType.charAt(0).toUpperCase() +
+                        reportType.slice(1)}{" "}
+                      Report
                     </>
                   )}
                 </Button>
@@ -377,23 +424,39 @@ const ChapterReports = () => {
             <CardContent className="space-y-4">
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Total Members</span>
-                  <span className="font-medium">{stats?.totalMembers || 0}</span>
+                  <span className="text-sm text-muted-foreground">
+                    Total Members
+                  </span>
+                  <span className="font-medium">
+                    {stats?.totalMembers || 0}
+                  </span>
                 </div>
-                
+
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Participation Rate</span>
-                  <span className="font-medium">{stats?.avgParticipation || 0}%</span>
+                  <span className="text-sm text-muted-foreground">
+                    Participation Rate
+                  </span>
+                  <span className="font-medium">
+                    {stats?.avgParticipation || 0}%
+                  </span>
                 </div>
-                
+
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Learning Hours</span>
-                  <span className="font-medium">{stats?.totalLearningHours || 0}</span>
+                  <span className="text-sm text-muted-foreground">
+                    Learning Hours
+                  </span>
+                  <span className="font-medium">
+                    {stats?.totalLearningHours || 0}
+                  </span>
                 </div>
-                
+
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Chapter Revenue</span>
-                  <span className="font-medium">{formatCurrency(stats?.totalRevenue || 0)}</span>
+                  <span className="text-sm text-muted-foreground">
+                    Chapter Revenue
+                  </span>
+                  <span className="font-medium">
+                    {formatCurrency(stats?.totalRevenue || 0)}
+                  </span>
                 </div>
               </div>
 
@@ -404,14 +467,30 @@ const ChapterReports = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs">
                     <span className="text-muted-foreground">Members</span>
-                    <span className={stats?.monthlyGrowth.members && stats.monthlyGrowth.members > 0 ? 'text-success' : 'text-muted-foreground'}>
-                      {stats?.monthlyGrowth.members > 0 ? '+' : ''}{stats?.monthlyGrowth.members || 0}
+                    <span
+                      className={
+                        stats?.monthlyGrowth.members &&
+                        stats.monthlyGrowth.members > 0
+                          ? "text-success"
+                          : "text-muted-foreground"
+                      }
+                    >
+                      {stats?.monthlyGrowth.members > 0 ? "+" : ""}
+                      {stats?.monthlyGrowth.members || 0}
                     </span>
                   </div>
                   <div className="flex justify-between text-xs">
                     <span className="text-muted-foreground">Revenue</span>
-                    <span className={stats?.monthlyGrowth.revenue && stats.monthlyGrowth.revenue > 0 ? 'text-success' : 'text-muted-foreground'}>
-                      {stats?.monthlyGrowth.revenue > 0 ? '+' : ''}{formatCurrency(stats?.monthlyGrowth.revenue || 0)}
+                    <span
+                      className={
+                        stats?.monthlyGrowth.revenue &&
+                        stats.monthlyGrowth.revenue > 0
+                          ? "text-success"
+                          : "text-muted-foreground"
+                      }
+                    >
+                      {stats?.monthlyGrowth.revenue > 0 ? "+" : ""}
+                      {formatCurrency(stats?.monthlyGrowth.revenue || 0)}
                     </span>
                   </div>
                 </div>
@@ -434,9 +513,9 @@ const ChapterReports = () => {
                 variant="outline"
                 className="h-auto p-4 flex flex-col gap-2"
                 onClick={() => {
-                  setReportType('monthly');
+                  setReportType("monthly");
                   setSelectedDate(subMonths(new Date(), 1));
-                  setReportFormat('pdf');
+                  setReportFormat("pdf");
                 }}
               >
                 <FileText className="h-5 w-5" />
@@ -450,9 +529,9 @@ const ChapterReports = () => {
                 variant="outline"
                 className="h-auto p-4 flex flex-col gap-2"
                 onClick={() => {
-                  setReportType('quarterly');
+                  setReportType("quarterly");
                   setSelectedDate(new Date());
-                  setReportFormat('excel');
+                  setReportFormat("excel");
                 }}
               >
                 <BarChart3 className="h-5 w-5" />
@@ -466,9 +545,9 @@ const ChapterReports = () => {
                 variant="outline"
                 className="h-auto p-4 flex flex-col gap-2"
                 onClick={() => {
-                  setReportType('annual');
+                  setReportType("annual");
                   setSelectedDate(new Date(new Date().getFullYear() - 1, 0, 1));
-                  setReportFormat('pdf');
+                  setReportFormat("pdf");
                 }}
               >
                 <TrendingUp className="h-5 w-5" />

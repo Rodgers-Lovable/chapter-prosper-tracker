@@ -52,7 +52,7 @@ const AdminDashboardOverview: React.FC<AdminDashboardOverviewProps> = ({
         adminService.getAdminMetrics(),
         adminService.getTopChapters(4),
       ]);
-      
+
       setMetrics(metricsData);
       setTopChapters(chaptersData);
     } catch (error) {

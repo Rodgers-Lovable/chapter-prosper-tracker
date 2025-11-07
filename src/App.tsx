@@ -28,12 +28,27 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/chapter-leader" element={<ChapterLeaderDashboard />} />
-            <Route path="/chapter-leader/members" element={<ChapterMembers />} />
-            <Route path="/chapter-leader/metrics" element={<ChapterMetrics />} />
-            <Route path="/chapter-leader/reports" element={<ChapterReports />} />
+            <Route
+              path="/chapter-leader"
+              element={<ChapterLeaderDashboard />}
+            />
+            <Route
+              path="/chapter-leader/members"
+              element={<ChapterMembers />}
+            />
+            <Route
+              path="/chapter-leader/metrics"
+              element={<ChapterMetrics />}
+            />
+            <Route
+              path="/chapter-leader/reports"
+              element={<ChapterReports />}
+            />
             <Route path="/chapter-leader/trades" element={<ChapterTrades />} />
-            <Route path="/chapter-leader/notifications" element={<ChapterNotifications />} />
+            <Route
+              path="/chapter-leader/notifications"
+              element={<ChapterNotifications />}
+            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
