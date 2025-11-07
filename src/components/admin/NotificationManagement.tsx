@@ -24,6 +24,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { adminService } from '@/lib/services/adminService';
+import { supabase } from '@/integrations/supabase/client';
+import { useEffect } from 'react';
 
 type NotificationType = 'reminder' | 'announcement' | 'recognition' | 'invoice' | 'system';
 type RecipientType = 'all' | 'chapter' | 'role' | 'custom';
@@ -38,6 +40,7 @@ interface NotificationTemplate {
 
 const NotificationManagement: React.FC = () => {
   const [sending, setSending] = useState(false);
+  const [stats, setStats] = useState({ sent: 0, scheduled: 0 });
   const [notificationConfig, setNotificationConfig] = useState({
     type: 'reminder' as NotificationType,
     recipientType: 'all' as RecipientType,
@@ -49,6 +52,26 @@ const NotificationManagement: React.FC = () => {
     scheduleDate: '',
     scheduleTime: ''
   });
+
+  useEffect(() => {
+    loadStats();
+  }, []);
+
+  const loadStats = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('notifications_history')
+        .select('status');
+      
+      if (!error && data) {
+        const sent = data.filter(n => n.status === 'sent').length;
+        const scheduled = data.filter(n => n.status === 'scheduled').length;
+        setStats({ sent, scheduled });
+      }
+    } catch (error) {
+      console.error('Error loading stats:', error);
+    }
+  };
 
   const notificationTypes = [
     { 
@@ -146,42 +169,49 @@ The PLANT Team`,
         return;
       }
 
-      // Calculate recipient count (mock calculation)
-      let recipientCount = 0;
-      switch (notificationConfig.recipientType) {
-        case 'all':
-          recipientCount = 1248; // Total members from dashboard
-          break;
-        case 'chapter':
-          recipientCount = 42; // Mock chapter size
-          break;
-        case 'role':
-          recipientCount = notificationConfig.role === 'chapter_leader' ? 15 : 1233;
-          break;
-        case 'custom':
-          recipientCount = notificationConfig.customRecipients.split(',').length;
-          break;
-      }
+      const customEmails = notificationConfig.recipientType === 'custom' 
+        ? notificationConfig.customRecipients.split(',').map(e => e.trim()).filter(Boolean)
+        : undefined;
 
-      // Log the notification
+      const scheduledFor = notificationConfig.scheduleDate 
+        ? `${notificationConfig.scheduleDate}T${notificationConfig.scheduleTime || '09:00'}:00`
+        : undefined;
+
+      // Call the edge function
+      const { data, error } = await supabase.functions.invoke('send-bulk-notification', {
+        body: {
+          notificationType: notificationConfig.type,
+          recipientType: notificationConfig.recipientType,
+          subject: notificationConfig.subject,
+          message: notificationConfig.message,
+          chapterId: notificationConfig.chapterId || undefined,
+          role: notificationConfig.role || undefined,
+          customEmails,
+          scheduledFor
+        }
+      });
+
+      if (error) throw error;
+
+      // Log the action
       await adminService.logAdminAction('notification_sent', {
         type: notificationConfig.type,
         recipient_type: notificationConfig.recipientType,
-        recipient_count: recipientCount,
-        subject: notificationConfig.subject,
-        scheduled: !!notificationConfig.scheduleDate
+        recipient_count: data.sent || data.recipientCount,
+        scheduled: data.scheduled || false
       });
 
-      // Simulate sending delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      if (notificationConfig.scheduleDate) {
+      if (data.scheduled) {
         toast.success(`Notification scheduled for ${notificationConfig.scheduleDate} at ${notificationConfig.scheduleTime || '09:00'}`);
       } else {
-        toast.success(`Notification sent successfully to ${recipientCount.toLocaleString()} recipients`);
+        toast.success(`Notification sent successfully to ${data.sent?.toLocaleString()} recipients`);
+        if (data.failed > 0) {
+          toast.warning(`${data.failed} emails failed to send`);
+        }
       }
 
-      // Reset form
+      // Reload stats and reset form
+      await loadStats();
       setNotificationConfig({
         type: 'reminder',
         recipientType: 'all',
@@ -237,8 +267,8 @@ The PLANT Team`,
             <Send className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">247</div>
-            <p className="text-xs text-muted-foreground">+12% from last month</p>
+            <div className="text-2xl font-bold">{stats.sent}</div>
+            <p className="text-xs text-muted-foreground">Total sent</p>
           </CardContent>
         </Card>
         <Card>
@@ -257,7 +287,7 @@ The PLANT Team`,
             <Clock className="h-4 w-4 text-warning" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-warning">8</div>
+            <div className="text-2xl font-bold text-warning">{stats.scheduled}</div>
             <p className="text-xs text-muted-foreground">Pending delivery</p>
           </CardContent>
         </Card>

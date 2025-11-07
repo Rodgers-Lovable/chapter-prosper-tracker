@@ -156,6 +156,56 @@ export type Database = {
           },
         ]
       }
+      notifications_history: {
+        Row: {
+          id: string
+          message: string
+          metadata: Json | null
+          notification_type: string
+          recipient_count: number | null
+          recipient_type: string
+          scheduled_for: string | null
+          sent_at: string | null
+          sent_by: string | null
+          status: string | null
+          subject: string
+        }
+        Insert: {
+          id?: string
+          message: string
+          metadata?: Json | null
+          notification_type: string
+          recipient_count?: number | null
+          recipient_type: string
+          scheduled_for?: string | null
+          sent_at?: string | null
+          sent_by?: string | null
+          status?: string | null
+          subject: string
+        }
+        Update: {
+          id?: string
+          message?: string
+          metadata?: Json | null
+          notification_type?: string
+          recipient_count?: number | null
+          recipient_type?: string
+          scheduled_for?: string | null
+          sent_at?: string | null
+          sent_by?: string | null
+          status?: string | null
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_history_sent_by_fkey"
+            columns: ["sent_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           business_description: string | null
@@ -199,6 +249,50 @@ export type Database = {
             columns: ["chapter_id"]
             isOneToOne: false
             referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reports_history: {
+        Row: {
+          created_at: string | null
+          date_range: Json | null
+          file_name: string
+          file_size: string | null
+          format: string
+          generated_by: string | null
+          id: string
+          report_period: string
+          report_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          date_range?: Json | null
+          file_name: string
+          file_size?: string | null
+          format: string
+          generated_by?: string | null
+          id?: string
+          report_period: string
+          report_type: string
+        }
+        Update: {
+          created_at?: string | null
+          date_range?: Json | null
+          file_name?: string
+          file_size?: string | null
+          format?: string
+          generated_by?: string | null
+          id?: string
+          report_period?: string
+          report_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_history_generated_by_fkey"
+            columns: ["generated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -255,13 +349,18 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      notification_stats: {
+        Row: {
+          month: string | null
+          notification_type: string | null
+          total_recipients: number | null
+          total_sent: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      get_user_chapter: {
-        Args: { user_uuid: string }
-        Returns: string
-      }
+      get_user_chapter: { Args: { user_uuid: string }; Returns: string }
       get_user_role: {
         Args: { user_uuid: string }
         Returns: Database["public"]["Enums"]["user_role"]

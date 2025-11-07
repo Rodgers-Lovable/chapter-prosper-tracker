@@ -24,6 +24,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { adminService } from '@/lib/services/adminService';
+import { reportService } from '@/lib/services/reportService';
+import { useEffect } from 'react';
 
 type ReportType = 'metrics' | 'trades' | 'financial' | 'members' | 'chapters';
 type ReportPeriod = 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'custom';
@@ -31,6 +33,7 @@ type ReportFormat = 'excel' | 'pdf';
 
 const ReportsManagement: React.FC = () => {
   const [generating, setGenerating] = useState(false);
+  const [recentReports, setRecentReports] = useState<any[]>([]);
   const [reportConfig, setReportConfig] = useState({
     type: 'metrics' as ReportType,
     period: 'monthly' as ReportPeriod,
@@ -39,6 +42,19 @@ const ReportsManagement: React.FC = () => {
     endDate: '',
     chapterId: ''
   });
+
+  useEffect(() => {
+    loadRecentReports();
+  }, []);
+
+  const loadRecentReports = async () => {
+    try {
+      const reports = await reportService.getRecentReports(5);
+      setRecentReports(reports || []);
+    } catch (error) {
+      console.error('Error loading recent reports:', error);
+    }
+  };
 
   const reportTypes = [
     { 
@@ -118,30 +134,27 @@ const ReportsManagement: React.FC = () => {
         }
       }
 
-      // Log the report generation
+      // Generate the report
+      const fileName = await reportService.generateAdminReport(
+        reportConfig.type,
+        new Date(startDate),
+        new Date(endDate),
+        reportConfig.format
+      );
+
+      // Log the action
       await adminService.logAdminAction('report_generated', {
         report_type: reportConfig.type,
         period: reportConfig.period,
         format: reportConfig.format,
         date_range: { startDate, endDate },
-        chapter_id: reportConfig.chapterId || null
+        file_name: fileName
       });
-
-      // For now, we'll simulate report generation
-      // In a real implementation, this would call an edge function to generate the actual report
-      await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate processing time
-
-      const reportName = `${reportConfig.type}_report_${reportConfig.period}_${new Date().toISOString().split('T')[0]}.${reportConfig.format}`;
       
-      toast.success(`Report "${reportName}" generated successfully!`);
+      toast.success(`Report "${fileName}" generated and downloaded successfully!`);
       
-      // In a real implementation, this would download the actual file
-      console.log('Report would be downloaded:', {
-        ...reportConfig,
-        startDate,
-        endDate,
-        fileName: reportName
-      });
+      // Reload recent reports
+      await loadRecentReports();
 
     } catch (error: any) {
       console.error('Error generating report:', error);
@@ -439,31 +452,11 @@ const ReportsManagement: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {/* Mock recent reports */}
-            {[
-              { 
-                name: 'Monthly Metrics Report - September 2024',
-                type: 'metrics',
-                format: 'excel',
-                date: '2024-09-30',
-                size: '2.4 MB'
-              },
-              {
-                name: 'Trade Activity Report - Q3 2024',
-                type: 'trades', 
-                format: 'pdf',
-                date: '2024-09-28',
-                size: '1.8 MB'
-              },
-              {
-                name: 'Financial Summary - August 2024',
-                type: 'financial',
-                format: 'excel',
-                date: '2024-08-31',
-                size: '3.1 MB'
-              }
-            ].map((report, index) => (
-              <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+            {recentReports.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">No reports generated yet</p>
+            ) : (
+              recentReports.map((report, index) => (
+                <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center gap-3">
                   {report.format === 'excel' ? (
                     <FileSpreadsheet className="h-8 w-8 text-green-600" />
