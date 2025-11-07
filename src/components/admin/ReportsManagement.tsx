@@ -457,24 +457,22 @@ const ReportsManagement: React.FC = () => {
             ) : (
               recentReports.map((report, index) => (
                 <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  {report.format === 'excel' ? (
-                    <FileSpreadsheet className="h-8 w-8 text-green-600" />
-                  ) : (
-                    <File className="h-8 w-8 text-red-600" />
-                  )}
-                  <div>
-                    <div className="font-medium">{report.name}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {new Date(report.date).toLocaleDateString()} • {report.size}
+                  <div className="flex items-center gap-3">
+                    {report.format === 'excel' ? (
+                      <FileSpreadsheet className="h-8 w-8 text-green-600" />
+                    ) : (
+                      <File className="h-8 w-8 text-red-600" />
+                    )}
+                    <div>
+                      <div className="font-medium">{report.file_name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {new Date(report.created_at).toLocaleDateString()}
+                      </div>
                     </div>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm">
-                  <Download className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </CardContent>
       </Card>
