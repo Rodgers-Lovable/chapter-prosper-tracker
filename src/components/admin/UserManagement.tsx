@@ -1,61 +1,79 @@
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { 
+import React, { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog';
-import { 
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { 
-  Building, 
-  Plus, 
-  Search, 
-  Edit, 
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Building,
+  Plus,
+  Search,
+  Edit,
   Trash2,
   Users,
   DollarSign,
   TrendingUp,
   UserCheck,
   Mail,
-  Phone
-} from 'lucide-react';
-import { adminService, type UserWithChapter, type ChapterWithStats } from '@/lib/services/adminService';
-import { toast } from 'sonner';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { supabase } from '@/integrations/supabase/client';
+  Phone,
+  Loader2,
+} from "lucide-react";
+import {
+  adminService,
+  type UserWithChapter,
+  type ChapterWithStats,
+} from "@/lib/services/adminService";
+import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 const userFormSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  full_name: z.string().min(2, 'Name must be at least 2 characters'),
-  role: z.enum(['member', 'chapter_leader', 'administrator']),
+  email: z.string().email("Invalid email address"),
+  full_name: z.string().min(2, "Name must be at least 2 characters"),
+  role: z.enum(["member", "chapter_leader", "administrator"]),
   chapter_id: z.string().optional(),
   business_name: z.string().optional(),
   business_description: z.string().optional(),
-  phone: z.string().optional()
+  phone: z.string().optional(),
 });
 
 type UserFormData = z.infer<typeof userFormSchema>;
@@ -67,9 +85,9 @@ const UserManagement: React.FC = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({
-    role: '',
-    chapter_id: '',
-    search: ''
+    role: "",
+    chapter_id: "",
+    search: "",
   });
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserWithChapter | null>(null);
@@ -77,14 +95,14 @@ const UserManagement: React.FC = () => {
   const form = useForm<UserFormData>({
     resolver: zodResolver(userFormSchema),
     defaultValues: {
-      email: '',
-      full_name: '',
-      role: 'member',
-      chapter_id: '',
-      business_name: '',
-      business_description: '',
-      phone: ''
-    }
+      email: "",
+      full_name: "",
+      role: "member",
+      chapter_id: "",
+      business_name: "",
+      business_description: "",
+      phone: "",
+    },
   });
 
   useEffect(() => {
@@ -96,15 +114,15 @@ const UserManagement: React.FC = () => {
     try {
       setLoading(true);
       const { users: userData, totalCount } = await adminService.getUsers(
-        currentPage, 
-        20, 
+        currentPage,
+        20,
         Object.fromEntries(Object.entries(filters).filter(([_, v]) => v))
       );
       setUsers(userData);
       setTotalCount(totalCount);
     } catch (error) {
-      console.error('Error loading users:', error);
-      toast.error('Failed to load users');
+      console.error("Error loading users:", error);
+      toast.error("Failed to load users");
     } finally {
       setLoading(false);
     }
@@ -115,12 +133,14 @@ const UserManagement: React.FC = () => {
       const chaptersData = await adminService.getTopChapters(50); // Get all chapters
       setChapters(chaptersData);
     } catch (error) {
-      console.error('Error loading chapters:', error);
+      console.error("Error loading chapters:", error);
     }
   };
 
   const handleCreateUser = async (data: UserFormData) => {
     try {
+      setLoading(true);
+
       const userData = {
         email: data.email,
         full_name: data.full_name,
@@ -128,56 +148,60 @@ const UserManagement: React.FC = () => {
         chapter_id: data.chapter_id || undefined,
         business_name: data.business_name || undefined,
         business_description: data.business_description || undefined,
-        phone: data.phone || undefined
+        phone: data.phone || undefined,
       };
       await adminService.createUser(userData);
-      toast.success('User created successfully');
+      toast.success("User created successfully");
       setIsCreateDialogOpen(false);
       form.reset();
       loadUsers();
     } catch (error: any) {
-      console.error('Error creating user:', error);
-      toast.error(error.message || 'Failed to create user');
+      toast.error(error.message || "Failed to create user");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleUpdateUser = async (data: UserFormData) => {
     if (!editingUser) return;
-    
+
     try {
-      console.log('Updating user with form data:', data);
-      
+      console.log("Updating user with form data:", data);
+
       const updateData = {
         full_name: data.full_name?.trim(),
         role: data.role,
-        chapter_id: data.chapter_id === '' || data.chapter_id === 'none' ? null : data.chapter_id,
+        chapter_id:
+          data.chapter_id === "" || data.chapter_id === "none"
+            ? null
+            : data.chapter_id,
         business_name: data.business_name?.trim() || null,
         business_description: data.business_description?.trim() || null,
-        phone: data.phone?.trim() || null
+        phone: data.phone?.trim() || null,
       };
 
-      console.log('Prepared update data:', updateData);
-      
+      console.log("Prepared update data:", updateData);
+
       const result = await adminService.updateUser(editingUser.id, updateData);
-      console.log('Update result:', result);
-      
+      console.log("Update result:", result);
+
       toast.success(`User ${data.full_name} updated successfully`);
       setEditingUser(null);
       form.reset();
       await loadUsers(); // Refresh the user list
     } catch (error: any) {
-      console.error('Error updating user:', error);
-      
+      console.error("Error updating user:", error);
+
       // More specific error messages
-      let errorMessage = 'Failed to update user';
-      if (error.message?.includes('permission')) {
-        errorMessage = 'You do not have permission to update this user';
-      } else if (error.message?.includes('not found')) {
-        errorMessage = 'User not found';
+      let errorMessage = "Failed to update user";
+      if (error.message?.includes("permission")) {
+        errorMessage = "You do not have permission to update this user";
+      } else if (error.message?.includes("not found")) {
+        errorMessage = "User not found";
       } else if (error.message) {
         errorMessage = error.message;
       }
-      
+
       toast.error(errorMessage);
     }
   };
@@ -185,31 +209,37 @@ const UserManagement: React.FC = () => {
   const handleResetPassword = async (user: UserWithChapter) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-        redirectTo: `${window.location.origin}/auth`
+        redirectTo: `${window.location.origin}/auth`,
       });
 
       if (error) throw error;
 
-      toast.success('Password reset email sent to ' + user.email);
-      await adminService.logAdminAction('password_reset_sent', { target_user_id: user.id });
+      toast.success("Password reset email sent to " + user.email);
+      await adminService.logAdminAction("password_reset_sent", {
+        target_user_id: user.id,
+      });
     } catch (error: any) {
-      console.error('Error sending password reset:', error);
-      toast.error(error.message || 'Failed to send password reset email');
+      console.error("Error sending password reset:", error);
+      toast.error(error.message || "Failed to send password reset email");
     }
   };
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
-      case 'administrator': return 'destructive';
-      case 'chapter_leader': return 'default';
-      default: return 'secondary';
+      case "administrator":
+        return "destructive";
+      case "chapter_leader":
+        return "default";
+      default:
+        return "secondary";
     }
   };
 
   const formatRole = (role: string) => {
-    return role.split('_').map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ');
+    return role
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
   const totalPages = Math.ceil(totalCount / 20);
@@ -238,11 +268,15 @@ const UserManagement: React.FC = () => {
             <DialogHeader>
               <DialogTitle>Create New User</DialogTitle>
               <DialogDescription>
-                Add a new user to the system. A temporary password will be generated.
+                Add a new user to the system. A temporary password will be
+                generated.
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleCreateUser)} className="space-y-4">
+              <form
+                onSubmit={form.handleSubmit(handleCreateUser)}
+                className="space-y-4"
+              >
                 <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
@@ -278,7 +312,10 @@ const UserManagement: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Role *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select role" />
@@ -286,8 +323,12 @@ const UserManagement: React.FC = () => {
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="member">Member</SelectItem>
-                            <SelectItem value="chapter_leader">Chapter Leader</SelectItem>
-                            <SelectItem value="administrator">Administrator</SelectItem>
+                            <SelectItem value="chapter_leader">
+                              Chapter Leader
+                            </SelectItem>
+                            <SelectItem value="administrator">
+                              Administrator
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -300,7 +341,10 @@ const UserManagement: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Chapter</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select chapter" />
@@ -355,17 +399,30 @@ const UserManagement: React.FC = () => {
                     <FormItem>
                       <FormLabel>Business Description</FormLabel>
                       <FormControl>
-                        <Input placeholder="Brief description of business" {...field} />
+                        <Input
+                          placeholder="Brief description of business"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsCreateDialogOpen(false)}
+                  >
                     Cancel
                   </Button>
-                  <Button type="submit">Create User</Button>
+                  
+                   <Button type="submit" disabled={loading}>
+                    {loading && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    Create User
+                  </Button>
                 </DialogFooter>
               </form>
             </Form>
@@ -385,13 +442,17 @@ const UserManagement: React.FC = () => {
               <Input
                 placeholder="Search users..."
                 value={filters.search}
-                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, search: e.target.value }))
+                }
                 className="pl-10"
               />
             </div>
             <Select
               value={filters.role}
-              onValueChange={(value) => setFilters(prev => ({ ...prev, role: value }))}
+              onValueChange={(value) =>
+                setFilters((prev) => ({ ...prev, role: value }))
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Filter by role" />
@@ -405,7 +466,9 @@ const UserManagement: React.FC = () => {
             </Select>
             <Select
               value={filters.chapter_id}
-              onValueChange={(value) => setFilters(prev => ({ ...prev, chapter_id: value }))}
+              onValueChange={(value) =>
+                setFilters((prev) => ({ ...prev, chapter_id: value }))
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Filter by chapter" />
@@ -419,9 +482,11 @@ const UserManagement: React.FC = () => {
                 ))}
               </SelectContent>
             </Select>
-            <Button 
-              variant="outline" 
-              onClick={() => setFilters({ role: '', chapter_id: '', search: '' })}
+            <Button
+              variant="outline"
+              onClick={() =>
+                setFilters({ role: "", chapter_id: "", search: "" })
+              }
             >
               Clear Filters
             </Button>
@@ -432,9 +497,7 @@ const UserManagement: React.FC = () => {
       {/* Users Table */}
       <Card>
         <CardHeader>
-          <CardTitle>
-            Users ({totalCount.toLocaleString()})
-          </CardTitle>
+          <CardTitle>Users ({totalCount.toLocaleString()})</CardTitle>
           <CardDescription>
             Page {currentPage} of {totalPages}
           </CardDescription>
@@ -463,8 +526,12 @@ const UserManagement: React.FC = () => {
                     <TableRow key={user.id}>
                       <TableCell>
                         <div>
-                          <div className="font-medium">{user.full_name || 'No name'}</div>
-                          <div className="text-sm text-muted-foreground">{user.email}</div>
+                          <div className="font-medium">
+                            {user.full_name || "No name"}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {user.email}
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -479,13 +546,17 @@ const UserManagement: React.FC = () => {
                             {user.chapter.name}
                           </div>
                         ) : (
-                          <span className="text-muted-foreground">No chapter</span>
+                          <span className="text-muted-foreground">
+                            No chapter
+                          </span>
                         )}
                       </TableCell>
                       <TableCell>
                         {user.business_name ? (
                           <div>
-                            <div className="font-medium text-sm">{user.business_name}</div>
+                            <div className="font-medium text-sm">
+                              {user.business_name}
+                            </div>
                             {user.business_description && (
                               <div className="text-xs text-muted-foreground truncate max-w-32">
                                 {user.business_description}
@@ -519,17 +590,18 @@ const UserManagement: React.FC = () => {
                             variant="ghost"
                             size="sm"
                             onClick={() => {
-                              console.log('Editing user:', user);
+                              console.log("Editing user:", user);
                               setEditingUser(user);
                               // Set form values for editing
                               form.reset({
                                 email: user.email,
-                                full_name: user.full_name || '',
+                                full_name: user.full_name || "",
                                 role: user.role,
-                                chapter_id: user.chapter_id || '',
-                                business_name: user.business_name || '',
-                                business_description: user.business_description || '',
-                                phone: user.phone || ''
+                                chapter_id: user.chapter_id || "",
+                                business_name: user.business_name || "",
+                                business_description:
+                                  user.business_description || "",
+                                phone: user.phone || "",
                               });
                             }}
                           >
@@ -552,13 +624,16 @@ const UserManagement: React.FC = () => {
               {/* Pagination */}
               <div className="flex items-center justify-between mt-4">
                 <div className="text-sm text-muted-foreground">
-                  Showing {((currentPage - 1) * 20) + 1} to {Math.min(currentPage * 20, totalCount)} of {totalCount} users
+                  Showing {(currentPage - 1) * 20 + 1} to{" "}
+                  {Math.min(currentPage * 20, totalCount)} of {totalCount} users
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(1, prev - 1))
+                    }
                     disabled={currentPage === 1}
                   >
                     Previous
@@ -569,7 +644,9 @@ const UserManagement: React.FC = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                    }
                     disabled={currentPage === totalPages}
                   >
                     Next
@@ -582,7 +659,10 @@ const UserManagement: React.FC = () => {
       </Card>
 
       {/* Edit User Dialog */}
-      <Dialog open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
+      <Dialog
+        open={!!editingUser}
+        onOpenChange={(open) => !open && setEditingUser(null)}
+      >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
@@ -591,7 +671,10 @@ const UserManagement: React.FC = () => {
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleUpdateUser)} className="space-y-4">
+            <form
+              onSubmit={form.handleSubmit(handleUpdateUser)}
+              className="space-y-4"
+            >
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -600,7 +683,11 @@ const UserManagement: React.FC = () => {
                     <FormItem>
                       <FormLabel>Email *</FormLabel>
                       <FormControl>
-                        <Input placeholder="user@example.com" {...field} disabled />
+                        <Input
+                          placeholder="user@example.com"
+                          {...field}
+                          disabled
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -627,7 +714,10 @@ const UserManagement: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Role *</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select role" />
@@ -635,8 +725,12 @@ const UserManagement: React.FC = () => {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="member">Member</SelectItem>
-                          <SelectItem value="chapter_leader">Chapter Leader</SelectItem>
-                          <SelectItem value="administrator">Administrator</SelectItem>
+                          <SelectItem value="chapter_leader">
+                            Chapter Leader
+                          </SelectItem>
+                          <SelectItem value="administrator">
+                            Administrator
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -649,7 +743,10 @@ const UserManagement: React.FC = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Chapter</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value || ''}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value || ""}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select chapter" />
@@ -704,14 +801,21 @@ const UserManagement: React.FC = () => {
                   <FormItem>
                     <FormLabel>Business Description</FormLabel>
                     <FormControl>
-                      <Input placeholder="Brief description of business" {...field} />
+                      <Input
+                        placeholder="Brief description of business"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setEditingUser(null)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setEditingUser(null)}
+                >
                   Cancel
                 </Button>
                 <Button type="submit">Update User</Button>

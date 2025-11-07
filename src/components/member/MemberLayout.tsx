@@ -16,8 +16,7 @@ import {
   FileText,
   Building2,
 } from "lucide-react";
-import { Chapter, chapterService } from "@/lib/services/chapterService";
-import { toast } from "@/hooks/use-toast";
+import { chapterService } from "@/lib/services/chapterService";
 
 interface MemberLayoutProps {
   children: React.ReactNode;

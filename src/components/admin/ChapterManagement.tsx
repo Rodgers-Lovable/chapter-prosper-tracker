@@ -51,6 +51,7 @@ import {
   DollarSign,
   TrendingUp,
   UserCheck,
+  Loader2,
 } from "lucide-react";
 import {
   adminService,
@@ -76,7 +77,8 @@ const ChapterManagement: React.FC = () => {
   const [availableLeaders, setAvailableLeaders] = useState<UserWithChapter[]>(
     []
   );
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [loadingChapters, setLoadingChapters] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingChapter, setEditingChapter] = useState<ChapterWithStats | null>(
@@ -123,9 +125,12 @@ const ChapterManagement: React.FC = () => {
 
   const handleCreateChapter = async (data: ChapterFormData) => {
     try {
+      setLoadingChapters(true);
+
       const { error } = await supabase.from("chapters").insert({
         name: data.name,
-        leader_id: data.leader_id && data.leader_id !== "none" ? data.leader_id : null,
+        leader_id:
+          data.leader_id && data.leader_id !== "none" ? data.leader_id : null,
       });
 
       if (error) throw error;
@@ -142,6 +147,8 @@ const ChapterManagement: React.FC = () => {
     } catch (error: any) {
       console.error("Error creating chapter:", error);
       toast.error(error.message || "Failed to create chapter");
+    } finally {
+      setLoadingChapters(false);
     }
   };
 
@@ -153,7 +160,8 @@ const ChapterManagement: React.FC = () => {
         .from("chapters")
         .update({
           name: data.name,
-          leader_id: data.leader_id && data.leader_id !== "none" ? data.leader_id : null,
+          leader_id:
+            data.leader_id && data.leader_id !== "none" ? data.leader_id : null,
         })
         .eq("id", editingChapter.id);
 
@@ -305,7 +313,13 @@ const ChapterManagement: React.FC = () => {
                   >
                     Cancel
                   </Button>
-                  <Button type="submit">Create Chapter</Button>
+                  
+                  <Button type="submit" disabled={loadingChapters}>
+                    {loadingChapters && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
+                    Create Chapter
+                  </Button>
                 </DialogFooter>
               </form>
             </Form>

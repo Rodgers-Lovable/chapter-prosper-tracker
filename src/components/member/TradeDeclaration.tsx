@@ -75,9 +75,10 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({
     );
 
     if (!error && data) {
+      data.forEach((element) => console.log(element));
       // Filter out current user
       const otherMembers = data.filter((member) => member.id !== profile.id);
-      console.log(otherMembers);
+
       setChapterMembers(otherMembers);
     }
   };

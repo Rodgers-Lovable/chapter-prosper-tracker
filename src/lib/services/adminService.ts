@@ -473,4 +473,7 @@ export const adminService = {
       throw error;
     }
   },
+
+  async deleteChapter(chapterId: string) {
+  }
 };
