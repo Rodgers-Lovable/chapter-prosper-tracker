@@ -155,11 +155,11 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({
         source_member_id:
           data.source_member_id && data.source_member_id !== "none"
             ? data.source_member_id
-            : null,
+            : undefined,
         beneficiary_member_id:
           data.beneficiary_member_id && data.beneficiary_member_id !== "none"
             ? data.beneficiary_member_id
-            : null,
+            : undefined,
         status: "pending",
       });
 
@@ -175,8 +175,8 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({
       form.reset({
         amount: 0,
         description: "",
-        source_member_id: "",
-        beneficiary_member_id: "",
+        source_member_id: "none",
+        beneficiary_member_id: "none",
       });
 
       onTradeAdded?.();
@@ -268,10 +268,8 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({
                   <FormItem>
                     <FormLabel>Source Member (Optional)</FormLabel>
                     <Select
-                      onValueChange={(val) =>
-                        field.onChange(val === "none" ? "" : val)
-                      }
-                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                      value={field.value || "none"}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -311,10 +309,8 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({
                   <FormItem>
                     <FormLabel>Beneficiary Member (Optional)</FormLabel>
                     <Select
-                      onValueChange={(val) =>
-                        field.onChange(val === "none" ? "" : val)
-                      }
-                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                      value={field.value || "none"}
                     >
                       <FormControl>
                         <SelectTrigger>
