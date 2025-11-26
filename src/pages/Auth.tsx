@@ -11,6 +11,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Eye, EyeOff } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, TrendingUp } from "lucide-react";
@@ -19,12 +26,14 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [signInData, setSignInData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
   const [signUpData, setSignUpData] = useState({
     email: "",
     password: "",
     fullName: "",
   });
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, user, resetPassword } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,6 +63,17 @@ const Auth = () => {
     setIsLoading(true);
     await signUp(signUpData.email, signUpData.password, signUpData.fullName);
     setIsLoading(false);
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail) return;
+
+    setIsLoading(true);
+    await resetPassword(resetEmail);
+    setIsLoading(false);
+    setShowResetDialog(false);
+    setResetEmail("");
   };
 
   return (
@@ -138,6 +158,16 @@ const Auth = () => {
                     )}
                     Sign In
                   </Button>
+
+                  <div className="text-center mt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowResetDialog(true)}
+                      className="text-sm text-primary hover:underline"
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
                 </form>
               </TabsContent>
 
@@ -218,6 +248,36 @@ const Auth = () => {
             </Tabs>
           </CardContent>
         </Card>
+
+        <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Reset Password</DialogTitle>
+              <DialogDescription>
+                Enter your email address and we'll send you a link to reset your password.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleResetPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="reset-email">Email</Label>
+                <Input
+                  id="reset-email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Send Reset Link
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
