@@ -161,7 +161,8 @@ const handler = async (req: Request): Promise<Response> => {
           successCount++;
         } catch (error) {
           failCount++;
-          errors.push(`${recipient.email}: ${error.message}`);
+          const errorMessage = error instanceof Error ? error.message : "Unknown error";
+          errors.push(`${recipient.email}: ${errorMessage}`);
           console.error(`Failed to send to ${recipient.email}:`, error);
         }
       }

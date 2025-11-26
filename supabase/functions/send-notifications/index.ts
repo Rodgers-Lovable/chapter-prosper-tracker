@@ -74,7 +74,8 @@ serve(async (req) => {
         };
       } catch (error) {
         console.error(`Exception sending email to ${email}:`, error);
-        return { email, success: false, error: error.message };
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        return { email, success: false, error: errorMessage };
       }
     });
 
@@ -110,10 +111,11 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("Error sending notifications:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message,
+        error: errorMessage,
       }),
       {
         status: 500,
