@@ -11,12 +11,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Eye, EyeOff } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, TrendingUp } from "lucide-react";
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [signInData, setSignInData] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const [signUpData, setSignUpData] = useState({
     email: "",
     password: "",
@@ -101,20 +103,35 @@ const Auth = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signin-password">Password</Label>
-                    <Input
-                      id="signin-password"
-                      type="password"
-                      placeholder="Enter your password"
-                      value={signInData.password}
-                      onChange={(e) =>
-                        setSignInData((prev) => ({
-                          ...prev,
-                          password: e.target.value,
-                        }))
-                      }
-                      required
-                    />
+
+                    <div className="relative">
+                      <Input
+                        id="signin-password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        value={signInData.password}
+                        onChange={(e) =>
+                          setSignInData((prev) => ({
+                            ...prev,
+                            password: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      >
+                        {showPassword ? (
+                          <EyeOff size={18} />
+                        ) : (
+                          <Eye size={18} />
+                        )}
+                      </button>
+                    </div>
                   </div>
+
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -158,22 +175,38 @@ const Auth = () => {
                       required
                     />
                   </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="signup-password">Password</Label>
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      placeholder="Create a password"
-                      value={signUpData.password}
-                      onChange={(e) =>
-                        setSignUpData((prev) => ({
-                          ...prev,
-                          password: e.target.value,
-                        }))
-                      }
-                      required
-                    />
+
+                    <div className="relative">
+                      <Input
+                        id="signup-password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        value={signUpData.password}
+                        onChange={(e) =>
+                          setSignUpData((prev) => ({
+                            ...prev,
+                            password: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      >
+                        {showPassword ? (
+                          <EyeOff size={18} />
+                        ) : (
+                          <Eye size={18} />
+                        )}
+                      </button>
+                    </div>
                   </div>
+
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
