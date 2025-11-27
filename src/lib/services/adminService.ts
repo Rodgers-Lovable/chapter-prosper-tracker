@@ -118,38 +118,130 @@ export const adminService = {
       const sixtyDaysAgo = new Date();
       sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
 
-      const [{ count: recentMembers }, { count: previousMembers }] =
-        await Promise.all([
-          supabase
-            .from("profiles")
-            .select("*", { count: "exact", head: true })
-            .gte("created_at", thirtyDaysAgo.toISOString()),
-          supabase
-            .from("profiles")
-            .select("*", { count: "exact", head: true })
-            .gte("created_at", sixtyDaysAgo.toISOString())
-            .lt("created_at", thirtyDaysAgo.toISOString()),
-        ]);
+      const [
+        { count: recentMembers },
+        { count: previousMembers },
+        { count: recentChapters },
+        { count: previousChapters },
+      ] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("*", { count: "exact", head: true })
+          .gte("created_at", thirtyDaysAgo.toISOString()),
+        supabase
+          .from("profiles")
+          .select("*", { count: "exact", head: true })
+          .gte("created_at", sixtyDaysAgo.toISOString())
+          .lt("created_at", thirtyDaysAgo.toISOString()),
+        supabase
+          .from("chapters")
+          .select("*", { count: "exact", head: true })
+          .gte("created_at", thirtyDaysAgo.toISOString()),
+        supabase
+          .from("chapters")
+          .select("*", { count: "exact", head: true })
+          .gte("created_at", sixtyDaysAgo.toISOString())
+          .lt("created_at", thirtyDaysAgo.toISOString()),
+      ]);
 
       const memberGrowth = previousMembers
         ? ((recentMembers || 0) / previousMembers) * 100
         : 0;
 
+      const chapterGrowth = previousChapters
+        ? ((recentChapters || 0) / previousChapters) * 100
+        : recentChapters || 0;
+
+      // Get revenue growth (comparing last 30 days to previous 30 days)
+      const { data: recentRevenueTrades } = await supabase
+        .from("trades")
+        .select("amount")
+        .eq("status", "paid")
+        .gte("created_at", thirtyDaysAgo.toISOString());
+
+      const { data: previousRevenueTrades } = await supabase
+        .from("trades")
+        .select("amount")
+        .eq("status", "paid")
+        .gte("created_at", sixtyDaysAgo.toISOString())
+        .lt("created_at", thirtyDaysAgo.toISOString());
+
+      const recentRevenue =
+        recentRevenueTrades?.reduce(
+          (sum, trade) => sum + Number(trade.amount),
+          0
+        ) || 0;
+      const previousRevenue =
+        previousRevenueTrades?.reduce(
+          (sum, trade) => sum + Number(trade.amount),
+          0
+        ) || 0;
+
+      const revenueGrowth = previousRevenue
+        ? ((recentRevenue - previousRevenue) / previousRevenue) * 100
+        : 0;
+
       // Get payment status metrics
       const { data: invoicesData } = await supabase
         .from("invoices")
-        .select("paid_at");
+        .select("paid_at, created_at");
 
       const totalInvoices = invoicesData?.length || 0;
       const paidInvoices =
         invoicesData?.filter((inv) => inv.paid_at).length || 0;
+      const pendingInvoices =
+        invoicesData?.filter((inv) => !inv.paid_at).length || 0;
+
+      // Calculate failed payments from trades with 'failed' status
+      const { count: failedTradesCount } = await supabase
+        .from("trades")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "failed");
+
       const successfulPayments = totalInvoices
         ? (paidInvoices / totalInvoices) * 100
         : 0;
+      const pendingPayments = totalInvoices
+        ? (pendingInvoices / totalInvoices) * 100
+        : 0;
+      const failedPayments = totalInvoices
+        ? ((failedTradesCount || 0) / totalInvoices) * 100
+        : 0;
+
+      // Get actual daily active users (users who created metrics or trades in the last 24 hours)
+      const oneDayAgo = new Date();
+      oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+      const [
+        { data: activeMetricUsers },
+        { data: activeTradeUsers }
+      ] = await Promise.all([
+        supabase
+          .from("metrics")
+          .select("user_id")
+          .gte("created_at", oneDayAgo.toISOString()),
+        supabase
+          .from("trades")
+          .select("user_id")
+          .gte("created_at", oneDayAgo.toISOString()),
+      ]);
+
+      // Count unique active users
+      const activeUserIds = new Set([
+        ...(activeMetricUsers?.map((m) => m.user_id) || []),
+        ...(activeTradeUsers?.map((t) => t.user_id) || []),
+      ]);
+      const dailyActiveUsers = activeUserIds.size;
 
       // Get recent metrics count
       const { count: metricsSubmitted } = await supabase
         .from("metrics")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", thirtyDaysAgo.toISOString());
+
+      // Get reports generated count from reports_history table
+      const { count: reportsGenerated } = await supabase
+        .from("reports_history")
         .select("*", { count: "exact", head: true })
         .gte("created_at", thirtyDaysAgo.toISOString());
 
@@ -158,14 +250,14 @@ export const adminService = {
         activeChapters: activeChapters || 0,
         totalRevenue,
         memberGrowth,
-        chapterGrowth: 2, // Placeholder - could calculate from chapter creation dates
-        revenueGrowth: 15.2, // Placeholder - could calculate from trade history
+        chapterGrowth,
+        revenueGrowth,
         successfulPayments,
-        pendingPayments: 100 - successfulPayments,
-        failedPayments: 0.5, // Placeholder
-        dailyActiveUsers: Math.floor((totalMembers || 0) * 0.7), // Estimate
+        pendingPayments,
+        failedPayments,
+        dailyActiveUsers,
         metricsSubmitted: metricsSubmitted || 0,
-        reportsGenerated: 89, // Placeholder - would track from report generation
+        reportsGenerated: reportsGenerated || 0,
       };
     } catch (error) {
       console.error("Error fetching admin metrics:", error);
