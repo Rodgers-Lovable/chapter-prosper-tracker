@@ -51,7 +51,7 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({
 }) => {
   const { profile } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [chapterMembers, setChapterMembers] = useState<any[]>([]);
+  const [chapterMembers, setChapterMembers] = useState([]);
 
   const form = useForm<TradeFormData>({
     resolver: zodResolver(tradeSchema),
@@ -148,7 +148,7 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({
     setIsLoading(true);
     try {
       console.log(data);
-      
+
       const { data: createdTrade, error } = await tradesService.createTrade({
         user_id: profile.id,
         chapter_id: profile.chapter_id,
