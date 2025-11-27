@@ -147,6 +147,8 @@ const TradeDeclaration: React.FC<TradeDeclarationProps> = ({
 
     setIsLoading(true);
     try {
+      console.log(data);
+      
       const { data: createdTrade, error } = await tradesService.createTrade({
         user_id: profile.id,
         chapter_id: profile.chapter_id,
