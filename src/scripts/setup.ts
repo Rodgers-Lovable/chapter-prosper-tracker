@@ -1,12 +1,4 @@
-/**
- * One-time setup script for initial system configuration
- * Run this manually when you need to set up the system
- */
-
-import {
-  createAdmin,
-  createBulkUsers,
-} from "../lib/system/examples";
+import { createAdmin, createBulkUsers } from "../lib/system/examples";
 
 async function runSetup() {
   console.log("🚀 Starting system setup...");
